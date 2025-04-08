@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">hanoipetadoption</string>
+    <string name="pets">Nhận nuôi</string>
+    <string name="home">Trang chủ</string>
+    <string name="donate">Ủng hộ</string>
+    <string name="about">Về chúng tôi</string>
+    <string name="adopt_pet">Adopt a Pet</string>
+    <string name="view_pets">View Pets</string>
+    <string name="donate_now">Donate Now</string>
+    <string name="learn_more">Learn More</string>
+    <string name="pet_adoption_slogan">Adopt, Don\'t Shop!</string>
+    <string name="rescued_pets">Rescued Pets</string>
+    <string name="successful_adoptions">Successful Adoptions</string>
+    <string name="active_volunteers">Active Volunteers</string>
+    <string name="years_experience">Years Experience</string>
+    <string name="featured_pets">Featured Pets</string>
+    <string name="latest_news">Latest News</string>
+    <string name="our_sponsors">Our Sponsors</string>
+    <string name="contact_us">Contact Us</string>
+    <string name="read_more">Read More</string>
+    <string name="support_us">Support Us</string>
+    <string name="adoption_process">Adoption Process</string>
+    <string name="adoption_requirements">Adoption Requirements</string>
+    <string name="adoption_fees">Adoption Fees</string>
+    <string name="adoption_form">Adoption Form</string>
+    <string name="adoption_faq">Adoption FAQ</string>
+</resources>
