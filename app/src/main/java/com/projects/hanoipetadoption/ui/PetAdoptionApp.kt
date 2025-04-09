@@ -29,6 +29,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.projects.hanoipetadoption.R
 import com.projects.hanoipetadoption.ui.screens.AboutScreen
+import com.projects.hanoipetadoption.ui.screens.AdoptionApplicationScreen
 import com.projects.hanoipetadoption.ui.screens.DonateScreen
 import com.projects.hanoipetadoption.ui.screens.HomeScreen
 import com.projects.hanoipetadoption.ui.screens.PetDetailScreen
@@ -66,10 +67,10 @@ fun PetAdoptionApp() {
     
     var showBottomBar by rememberSaveable { mutableStateOf(true) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    
-    // Hide bottom bar on detail screens
+      // Hide bottom bar on detail screens
     showBottomBar = when (navBackStackEntry?.destination?.route) {
         "pet_detail/{petId}" -> false
+        "adoption_application/{petId}/{petName}" -> false
         else -> true
     }
 
@@ -104,8 +105,7 @@ fun PetAdoptionApp() {
                 }
             }
         }
-    ) { innerPadding ->
-        NavHost(
+    ) { innerPadding ->        NavHost(
             navController = navController,
             startDestination = "pets",
             modifier = Modifier.padding(innerPadding)
@@ -121,6 +121,13 @@ fun PetAdoptionApp() {
             ) { backStackEntry ->
                 val petId = backStackEntry.arguments?.getString("petId") ?: ""
                 PetDetailScreen(navController, petId)
+            }
+            composable(
+                route = "adoption_application/{petId}/{petName}",
+            ) { backStackEntry ->
+                val petId = backStackEntry.arguments?.getString("petId") ?: ""
+                val petName = backStackEntry.arguments?.getString("petName") ?: ""
+                AdoptionApplicationScreen(navController, petId, petName)
             }
         }
     }

@@ -119,12 +119,11 @@ fun PetsScreen(navController: NavController) {
         if (selectedGenders.isNotEmpty()) {
             filteredPets = filteredPets.filter { pet -> selectedGenders.contains(pet.gender) }
         }
-        
-        // Apply search query filter
+          // Apply search query filter
         if (searchQuery.isNotEmpty()) {
             filteredPets = filteredPets.filter { pet ->
-                pet.name.contains(searchQuery, ignoreCase = true) ||
-                pet.breed.contains(searchQuery, ignoreCase = true)
+                com.projects.hanoipetadoption.util.StringUtils.containsIgnoreDiacritics(pet.name, searchQuery) ||
+                com.projects.hanoipetadoption.util.StringUtils.containsIgnoreDiacritics(pet.breed, searchQuery)
             }
         }
     }
@@ -145,15 +144,6 @@ fun PetsScreen(navController: NavController) {
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
                     actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
-                actions = {
-                    IconButton(onClick = { showFilters = !showFilters }) {
-                        Icon(
-                            imageVector = Icons.Default.Favorite,
-                            contentDescription = "Filter",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                },
                 scrollBehavior = scrollBehavior
             )
         }

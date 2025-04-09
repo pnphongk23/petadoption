@@ -239,7 +239,7 @@ object SamplePetsData {
                 age = "Nhỡ",
                 gender = PetGender.MALE,
                 description = "Ngoan ngoãn, dễ bảo",
-                imageRes = "https://www.hanoipetadoption.com/admin/user-content/Animal/75c3e0c1-239d-4216-8f02-ce485891b8a6.jpeg",
+                imageRes = "https://www.hanoipetadoption.com/admin/user-content/Animal/75c3e0c1-239d-4216-8f02-ce485891b8a6.jpeg ",
                 isFavorite = false,
                 characteristics = listOf("Ngoan ngoãn", "dễ bảo")
             ),

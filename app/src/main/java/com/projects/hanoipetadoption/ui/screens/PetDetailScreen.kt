@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -200,14 +203,14 @@ fun PetDetailScreen(navController: NavController, petId: String) {
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
+                      Spacer(modifier = Modifier.height(8.dp))
                     
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Row(
+                    LazyRow(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(end = 8.dp)
                     ) {
-                        pet.characteristics.forEach { characteristic ->
+                        items(pet.characteristics) { characteristic ->
                             CharacteristicChip(text = characteristic)
                         }
                     }
@@ -306,10 +309,11 @@ fun PetDetailScreen(navController: NavController, petId: String) {
                     RequirementItem(text = "Đồng ý kiểm tra định kỳ sau khi nhận nuôi")
                 }
             }
-            
-            // Adoption button
+              // Adoption button
             Button(
-                onClick = { /* Adoption process */ },
+                onClick = {
+                    navController.navigate("adoption_application/${pet.id}/${pet.name}")
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
