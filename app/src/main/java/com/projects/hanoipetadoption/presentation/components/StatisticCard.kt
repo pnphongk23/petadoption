@@ -1,4 +1,4 @@
-package com.projects.hanoipetadoption.ui.components
+package com.projects.hanoipetadoption.presentation.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

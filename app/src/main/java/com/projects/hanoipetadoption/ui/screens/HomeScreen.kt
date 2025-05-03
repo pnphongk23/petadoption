@@ -35,13 +35,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.projects.hanoipetadoption.R
-import com.projects.hanoipetadoption.ui.components.CarouselItem
-import com.projects.hanoipetadoption.ui.components.ImageCarousel
-import com.projects.hanoipetadoption.ui.components.NewsCard
-import com.projects.hanoipetadoption.ui.components.PetCard
-import com.projects.hanoipetadoption.ui.components.SectionHeading
-import com.projects.hanoipetadoption.ui.components.StatisticCard
-import com.projects.hanoipetadoption.ui.components.SupportCallToAction
+import com.projects.hanoipetadoption.presentation.components.CarouselItem
+import com.projects.hanoipetadoption.presentation.components.ImageCarousel
+import com.projects.hanoipetadoption.presentation.components.NewsCard
+import com.projects.hanoipetadoption.presentation.components.PetCard
+import com.projects.hanoipetadoption.presentation.components.SectionHeading
+import com.projects.hanoipetadoption.presentation.components.StatisticCard
+import com.projects.hanoipetadoption.presentation.components.SupportCallToAction
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

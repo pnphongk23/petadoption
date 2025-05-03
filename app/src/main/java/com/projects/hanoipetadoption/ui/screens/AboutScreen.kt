@@ -46,7 +46,7 @@ import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.projects.hanoipetadoption.R
-import com.projects.hanoipetadoption.ui.components.SectionHeading
+import com.projects.hanoipetadoption.presentation.components.SectionHeading
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
 @Composable

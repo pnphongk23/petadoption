@@ -44,7 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.projects.hanoipetadoption.R
-import com.projects.hanoipetadoption.ui.components.PetDetailCard
+import com.projects.hanoipetadoption.presentation.components.PetDetailCard
 import com.projects.hanoipetadoption.ui.model.Pet
 import com.projects.hanoipetadoption.ui.model.PetCategory
 import com.projects.hanoipetadoption.ui.model.PetGender
