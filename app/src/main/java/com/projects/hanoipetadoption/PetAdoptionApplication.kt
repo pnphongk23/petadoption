@@ -2,6 +2,7 @@ package com.projects.hanoipetadoption
 
 import android.app.Application
 import com.projects.hanoipetadoption.di.appModule
+import com.projects.hanoipetadoption.di.postAdoptionModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -17,11 +18,10 @@ class PetAdoptionApplication : Application() {
         // Initialize Koin
         startKoin {
             // Use Android logger to log Koin events - using Level.ERROR to avoid too many logs
-            androidLogger(Level.ERROR)
-            // Declare Android context
+            androidLogger(Level.ERROR)            // Declare Android context
             androidContext(this@PetAdoptionApplication)
             // Declare modules
-            modules(appModule)
+            modules(listOf(appModule, postAdoptionModule))
         }
     }
 }

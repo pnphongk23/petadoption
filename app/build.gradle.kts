@@ -68,6 +68,10 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation("androidx.compose.material:material-icons-extended")
+    
+    // Image Loading
+    implementation("io.coil-kt:coil-compose:2.4.0")
     
     // Base testing
     testImplementation(libs.junit)
@@ -112,6 +116,9 @@ dependencies {
     
     // JSON parsing
     implementation("com.google.code.gson:gson:2.10.1")
+    
+    // WorkManager for background tasks and notifications
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
     
     implementation( libs.androidx.navigation.compose)
 }
