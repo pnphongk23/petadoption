@@ -5,9 +5,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -34,6 +36,8 @@ import com.projects.hanoipetadoption.ui.screens.DonateScreen
 import com.projects.hanoipetadoption.ui.screens.HomeScreen
 import com.projects.hanoipetadoption.ui.screens.PetDetailScreen
 import com.projects.hanoipetadoption.ui.screens.PetsScreen
+import com.projects.hanoipetadoption.ui.screens.myadoptedpets.AdoptedPetHubScreen
+import com.projects.hanoipetadoption.ui.screens.myadoptedpets.MyAdoptedPetsListScreen
 
 @Composable
 fun PetAdoptionApp() {
@@ -50,6 +54,12 @@ fun PetAdoptionApp() {
             selectedIcon = Icons.Filled.Favorite,
             unselectedIcon = Icons.Outlined.Favorite,
             titleRes = R.string.pets
+        ),
+        NavigationItem(
+            route = "my_adopted_pets",
+            selectedIcon = Icons.Filled.Pets,
+            unselectedIcon = Icons.Outlined.Pets,
+            titleRes = R.string.my_adopted_pets
         ),
 //        NavigationItem(
 //            route = "donate",
@@ -71,6 +81,7 @@ fun PetAdoptionApp() {
     showBottomBar = when (navBackStackEntry?.destination?.route) {
         "pet_detail/{petId}" -> false
         "adoption_application/{petId}/{petName}" -> false
+        "adopted_pet_hub/{petId}" -> false
         else -> true
     }
 
@@ -105,7 +116,8 @@ fun PetAdoptionApp() {
                 }
             }
         }
-    ) { innerPadding ->        NavHost(
+    ) { innerPadding ->        
+        NavHost(
             navController = navController,
             startDestination = "pets",
             modifier = Modifier.padding(innerPadding)
@@ -128,6 +140,19 @@ fun PetAdoptionApp() {
                 val petId = backStackEntry.arguments?.getString("petId") ?: ""
                 val petName = backStackEntry.arguments?.getString("petName") ?: ""
                 AdoptionApplicationScreen(navController, petId, petName)
+            }
+            
+            // New routes for post-adoption features
+            composable("my_adopted_pets") {
+                MyAdoptedPetsListScreen(navController)
+            }
+            composable(
+                route = "adopted_pet_hub/{petId}",
+            ) { backStackEntry ->
+                val petId = backStackEntry.arguments?.getString("petId")?.toIntOrNull() ?: -1
+                if (petId != -1) {
+                    AdoptedPetHubScreen(navController, petId)
+                }
             }
         }
     }

@@ -17,6 +17,8 @@ import com.projects.hanoipetadoption.data.source.postadoption.HealthLocalDataSou
 import com.projects.hanoipetadoption.data.source.postadoption.HealthLocalDataSourceImpl
 import com.projects.hanoipetadoption.data.source.postadoption.HealthRecordRemoteDataSource
 import com.projects.hanoipetadoption.data.source.postadoption.HealthRecordRemoteDataSourceImpl
+import com.projects.hanoipetadoption.data.source.postadoption.HealthRemoteDataSource
+import com.projects.hanoipetadoption.data.source.postadoption.HealthRemoteDataSourceImpl
 import com.projects.hanoipetadoption.data.source.postadoption.ReminderLocalDataSource
 import com.projects.hanoipetadoption.data.source.postadoption.ReminderLocalDataSourceImpl
 import com.projects.hanoipetadoption.data.source.postadoption.ReminderRemoteDataSource
@@ -58,11 +60,15 @@ val postAdoptionModule = module {
     
     // API Service
     single<PostAdoptionApiService> {
-        get<Retrofit>().create(PostAdoptionApiService::class.java)    }
+        get<Retrofit>().create(PostAdoptionApiService::class.java)    
+    }
     
     // Data Sources
     single<HealthRecordRemoteDataSource> { 
         HealthRecordRemoteDataSourceImpl(get())
+    }
+    single<HealthRemoteDataSource> { 
+        HealthRemoteDataSourceImpl(get())
     }
     single<HealthLocalDataSource> {
         HealthLocalDataSourceImpl(get())
@@ -105,10 +111,4 @@ val postAdoptionModule = module {
     factory { OpenCareDocumentUseCase(get()) }
     factory { GetPetStatusUpdatesUseCase(get()) }
     factory { AddPetStatusUpdateUseCase(get()) }
-
-    // ViewModels
-    viewModel { HealthTrackerViewModel(get(), get(), get()) }
-    viewModel { ReminderViewModel(get(), get(), get(), get()) }
-    viewModel { CareInstructionsViewModel(get(), get()) }
-    viewModel { PetStatusViewModel(get(), get()) }
 }

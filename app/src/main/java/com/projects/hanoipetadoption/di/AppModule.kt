@@ -8,6 +8,7 @@ import com.projects.hanoipetadoption.data.source.PetLocalDataSourceImpl
 import com.projects.hanoipetadoption.data.source.PetRemoteDataSource
 import com.projects.hanoipetadoption.data.source.PetRemoteDataSourceImpl
 import com.projects.hanoipetadoption.domain.repository.PetRepository
+import com.projects.hanoipetadoption.domain.usecase.GetAdoptedPetsUseCase
 import com.projects.hanoipetadoption.domain.usecase.GetPetByIdUseCase
 import com.projects.hanoipetadoption.domain.usecase.GetPetsUseCase
 import com.projects.hanoipetadoption.domain.usecase.TogglePetFavoriteUseCase
@@ -63,6 +64,7 @@ val appModule = module {
     factory { GetPetByIdUseCase(get()) }
     factory { GetPetsUseCase(get()) }
     factory { TogglePetFavoriteUseCase(get()) }
+    factory { GetAdoptedPetsUseCase(get(), get()) }
 
     // ViewModels
     viewModel { PetDetailViewModel(get(), get()) }

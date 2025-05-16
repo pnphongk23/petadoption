@@ -7,6 +7,7 @@ import androidx.work.WorkManager
 import com.projects.hanoipetadoption.di.appModule
 import com.projects.hanoipetadoption.di.databaseModule
 import com.projects.hanoipetadoption.di.postAdoptionModule
+import com.projects.hanoipetadoption.di.viewModelsModule
 import com.projects.hanoipetadoption.worker.DataInitializerWorker
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -26,7 +27,7 @@ class PetAdoptionApplication : Application() {
             androidLogger(Level.ERROR)            // Declare Android context
             androidContext(this@PetAdoptionApplication)
             // Declare modules
-            modules(listOf(appModule, postAdoptionModule, databaseModule))
+            modules(listOf(appModule, postAdoptionModule, databaseModule, viewModelsModule))
         }
         
         // Schedule database initialization work
