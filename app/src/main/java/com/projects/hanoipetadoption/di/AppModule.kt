@@ -1,16 +1,22 @@
 package com.projects.hanoipetadoption.di
 
 import com.projects.hanoipetadoption.data.network.ApiService
+import com.projects.hanoipetadoption.data.repository.AdoptionRepository
 import com.projects.hanoipetadoption.data.repository.PetRepositoryImpl
 import com.projects.hanoipetadoption.data.source.PetLocalDataSource
 import com.projects.hanoipetadoption.data.source.PetLocalDataSourceImpl
+import com.projects.hanoipetadoption.data.source.PetRemoteDataSource
+import com.projects.hanoipetadoption.data.source.PetRemoteDataSourceImpl
 import com.projects.hanoipetadoption.domain.repository.PetRepository
 import com.projects.hanoipetadoption.domain.usecase.GetPetByIdUseCase
 import com.projects.hanoipetadoption.domain.usecase.GetPetsUseCase
 import com.projects.hanoipetadoption.domain.usecase.TogglePetFavoriteUseCase
-import com.projects.hanoipetadoption.presentation.viewmodel.PetDetailViewModel
-import com.projects.hanoipetadoption.presentation.viewmodel.PetsViewModel
+import com.projects.hanoipetadoption.ui.viewmodel.PetDetailViewModel
+import com.projects.hanoipetadoption.ui.viewmodel.PetsViewModel
+import com.projects.hanoipetadoption.ui.viewmodel.PetViewModel
+import com.projects.hanoipetadoption.util.ConnectivityChecker
 import okhttp3.OkHttpClient
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -18,9 +24,12 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 /**
- * Koin module that provides dependencies for the app
+ * Main application module for dependency injection
  */
 val appModule = module {
+    // Utilities
+    single { ConnectivityChecker(androidContext()) }
+    
     // Network
     single {
         OkHttpClient.Builder()
@@ -43,10 +52,12 @@ val appModule = module {
     }
     
     // Data Sources
-    single<PetLocalDataSource> { PetLocalDataSourceImpl() }
+    single<PetLocalDataSource> { PetLocalDataSourceImpl(get(), get(), get(), get()) }
+    single<PetRemoteDataSource> { PetRemoteDataSourceImpl(get()) }
 
     // Repositories
-    single<PetRepository> { PetRepositoryImpl(get(), get()) }
+    single<PetRepository> { PetRepositoryImpl(get(), get(), get()) }
+    single { AdoptionRepository(get()) }
 
     // Use Cases
     factory { GetPetByIdUseCase(get()) }
@@ -56,4 +67,18 @@ val appModule = module {
     // ViewModels
     viewModel { PetDetailViewModel(get(), get()) }
     viewModel { PetsViewModel(get()) }
+    viewModel { PetViewModel(get(), get()) }
+    
+    // Data initialization
+    single {
+        // Initialize database with sample data if needed
+        val localDataSource = get<PetLocalDataSource>()
+        if (localDataSource is com.projects.hanoipetadoption.data.source.PetLocalDataSourceImpl) {
+            kotlinx.coroutines.runBlocking {
+                localDataSource.initializeWithSampleDataIfEmpty()
+            }
+        }
+        // Return something for the dependency graph
+        Unit
+    }
 }

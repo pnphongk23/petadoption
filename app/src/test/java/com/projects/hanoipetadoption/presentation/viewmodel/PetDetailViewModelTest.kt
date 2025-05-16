@@ -4,15 +4,15 @@ import com.google.common.truth.Truth.assertThat
 import com.projects.hanoipetadoption.data.mapper.toDomain
 import com.projects.hanoipetadoption.domain.usecase.GetPetByIdUseCase
 import com.projects.hanoipetadoption.domain.usecase.TogglePetFavoriteUseCase
-import com.projects.hanoipetadoption.presentation.state.PetDetailState
+import com.projects.hanoipetadoption.ui.state.PetDetailState
 import com.projects.hanoipetadoption.ui.model.Pet
 import com.projects.hanoipetadoption.ui.model.PetCategory
 import com.projects.hanoipetadoption.ui.model.PetGender
+import com.projects.hanoipetadoption.ui.viewmodel.PetDetailViewModel
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler

@@ -46,8 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.asFlow
 import com.projects.hanoipetadoption.data.model.postadoption.HealthRecord
 import com.projects.hanoipetadoption.data.model.postadoption.RecordType
-import com.projects.hanoipetadoption.presentation.viewmodel.postadoption.HealthRecordsState
-import com.projects.hanoipetadoption.presentation.viewmodel.postadoption.HealthTrackerViewModel
+import com.projects.hanoipetadoption.ui.viewmodel.postadoption.HealthRecordsState
+import com.projects.hanoipetadoption.ui.viewmodel.postadoption.HealthTrackerViewModel
 import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale

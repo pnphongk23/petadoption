@@ -48,8 +48,8 @@ import androidx.lifecycle.asFlow
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.projects.hanoipetadoption.data.model.postadoption.PetStatusUpdate
-import com.projects.hanoipetadoption.presentation.viewmodel.postadoption.PetStatusState
-import com.projects.hanoipetadoption.presentation.viewmodel.postadoption.PetStatusViewModel
+import com.projects.hanoipetadoption.ui.viewmodel.postadoption.PetStatusState
+import com.projects.hanoipetadoption.ui.viewmodel.postadoption.PetStatusViewModel
 import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.util.Locale

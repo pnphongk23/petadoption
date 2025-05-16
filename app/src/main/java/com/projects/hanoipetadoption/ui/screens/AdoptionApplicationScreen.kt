@@ -21,14 +21,16 @@ import androidx.navigation.NavController
 import com.projects.hanoipetadoption.ui.model.AdoptionApplication
 import com.projects.hanoipetadoption.ui.model.ApplicationStatus
 import com.projects.hanoipetadoption.ui.model.LivingSpaceType
-import kotlinx.coroutines.launch
+import com.projects.hanoipetadoption.ui.viewmodel.PetViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdoptionApplicationScreen(
     navController: NavController,
     petId: String,
-    petName: String
+    petName: String,
+    viewModel: PetViewModel = koinViewModel() // Injected ViewModel
 ) {
     var applicantName by remember { mutableStateOf("") }
     var phoneNumber by remember { mutableStateOf("") }
@@ -42,7 +44,7 @@ fun AdoptionApplicationScreen(
     var showDialog by remember { mutableStateOf(false) }
     
     // State for form validation
-    var isFormValid by remember(applicantName, phoneNumber, email, address) {
+    var isFormValid by remember(applicantName, phoneNumber, email, address, petExperience, hoursAtHome) { // Added petExperience and hoursAtHome
         mutableStateOf(
             applicantName.isNotBlank() && 
             phoneNumber.isNotBlank() && 
@@ -307,14 +309,11 @@ fun AdoptionApplicationScreen(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Đơn đăng ký đã được gửi") },
-            text = { 
-                Text("Cảm ơn bạn đã đăng ký nhận nuôi $petName. Đơn đăng ký của bạn đã được gửi đến đội ngũ tình nguyện viên của chúng tôi. Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất để sắp xếp buổi phỏng vấn.")
-            },
+            title = { Text("Xác nhận gửi đơn") }, // Changed title for clarity
+            text = { Text("Bạn có chắc chắn muốn gửi đơn đăng ký nhận nuôi $petName không?") },
             confirmButton = {
                 Button(
                     onClick = {
-                        // Create the application
                         val application = AdoptionApplication(
                             petId = petId,
                             petName = petName,
@@ -325,18 +324,20 @@ fun AdoptionApplicationScreen(
                             petExperience = petExperience,
                             livingSpace = selectedLivingSpaceType.displayName,
                             hoursAtHome = hoursAtHome
+                            // applicationStatus is PENDING by default in the model,
+                            // AdoptionRepository will save it as APPROVED.
                         )
-                        
-                        // Here you would typically send the application to a backend service
-                        // For now, we'll just navigate back to the pet detail screen
-                        scope.launch {
-                            // TODO: Send application to backend
-                            showDialog = false
-                            navController.popBackStack()
-                        }
+                        viewModel.submitAdoptionApplication(application) // Call ViewModel
+                        showDialog = false
+                        navController.popBackStack() 
                     }
                 ) {
                     Text("Đồng ý")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showDialog = false }) {
+                    Text("Hủy")
                 }
             }
         )

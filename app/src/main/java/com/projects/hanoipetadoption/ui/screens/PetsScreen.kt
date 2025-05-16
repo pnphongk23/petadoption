@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,12 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -44,11 +38,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.projects.hanoipetadoption.R
-import com.projects.hanoipetadoption.presentation.components.PetDetailCard
+import com.projects.hanoipetadoption.ui.components.PetDetailCard
 import com.projects.hanoipetadoption.ui.model.Pet
 import com.projects.hanoipetadoption.ui.model.PetCategory
 import com.projects.hanoipetadoption.ui.model.PetGender
-import com.projects.hanoipetadoption.ui.model.SamplePetsData
+import com.projects.hanoipetadoption.ui.model.PetWithAdoptionStatus // Ensure this is imported
+import com.projects.hanoipetadoption.ui.viewmodel.PetViewModel
+import org.koin.androidx.compose.koinViewModel
 
 enum class AgeFilter(val displayName: String, val predicate: (String) -> Boolean) {
     UNDER_ONE_YEAR("Dưới 1 năm", { age -> age.contains("month", ignoreCase = true) || age.startsWith("1 month", ignoreCase = true) }),
@@ -72,13 +68,15 @@ enum class SizeFilter(val displayName: String) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun PetsScreen(navController: NavController) {
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    
+fun PetsScreen(
+    navController: NavController,
+    viewModel: PetViewModel = koinViewModel() // Injected ViewModel using Koin
+) {
+    val allPetsWithStatus by viewModel.petsWithAdoptionStatus.collectAsState()
+    var filteredPetsWithStatus by remember(allPetsWithStatus) { mutableStateOf(allPetsWithStatus) }
+
     var searchQuery by remember { mutableStateOf("") }
     var isSearchActive by remember { mutableStateOf(false) }
-    val allPets = remember { SamplePetsData.getPets() }
-    var filteredPets by remember { mutableStateOf(allPets) }
     
     // Filter states
     val selectedCategories = remember { mutableStateListOf<PetCategory>() }
@@ -86,48 +84,59 @@ fun PetsScreen(navController: NavController) {
     val selectedAgeFilters = remember { mutableStateListOf<AgeFilter>() }
     val selectedGenders = remember { mutableStateListOf<PetGender>() }
     val selectedSizes = remember { mutableStateListOf<SizeFilter>() }
-    
-    var showFilters by remember { mutableStateOf(false) }
-    
-    // Get unique breeds from all pets
-    val allBreeds = remember {
-        allPets.map { it.breed }.distinct().sorted()
-    }
-    
-    // Filter function
+    val showFilters by remember { mutableStateOf(false) }
+
+    // Function to apply all filters
     fun applyFilters() {
-        filteredPets = allPets
-        
-        // Apply category filter
+        var currentList = allPetsWithStatus
+
+        // Search query filter (name or breed)
+        if (searchQuery.isNotBlank()) {
+            currentList = currentList.filter {
+                it.pet.name.contains(searchQuery, ignoreCase = true) ||
+                it.pet.breed.contains(searchQuery, ignoreCase = true)
+            }
+        }
+
+        // Category filter
         if (selectedCategories.isNotEmpty()) {
-            filteredPets = filteredPets.filter { pet -> selectedCategories.contains(pet.category) }
+            currentList = currentList.filter { selectedCategories.contains(it.pet.category) }
         }
-        
-        // Apply breed filter
+
+        // Breed filter
         if (selectedBreeds.isNotEmpty()) {
-            filteredPets = filteredPets.filter { pet -> selectedBreeds.contains(pet.breed) }
+            currentList = currentList.filter { selectedBreeds.contains(it.pet.breed) }
         }
-        
-        // Apply age filter
+
+        // Age filter
         if (selectedAgeFilters.isNotEmpty()) {
-            filteredPets = filteredPets.filter { pet -> 
-                selectedAgeFilters.any { ageFilter -> ageFilter.predicate(pet.age) }
+            currentList = currentList.filter { petWithStatus ->
+                selectedAgeFilters.any { ageFilter -> ageFilter.predicate(petWithStatus.pet.age) }
             }
         }
-        
-        // Apply gender filter
+
+        // Gender filter
         if (selectedGenders.isNotEmpty()) {
-            filteredPets = filteredPets.filter { pet -> selectedGenders.contains(pet.gender) }
+            currentList = currentList.filter { selectedGenders.contains(it.pet.gender) }
         }
-          // Apply search query filter
-        if (searchQuery.isNotEmpty()) {
-            filteredPets = filteredPets.filter { pet ->
-                com.projects.hanoipetadoption.util.StringUtils.containsIgnoreDiacritics(pet.name, searchQuery) ||
-                com.projects.hanoipetadoption.util.StringUtils.containsIgnoreDiacritics(pet.breed, searchQuery)
-            }
-        }
+
+        filteredPetsWithStatus = currentList
     }
 
+    // Effect to apply filters whenever a filter state changes
+    LaunchedEffect(
+        searchQuery, selectedCategories, selectedBreeds,
+        selectedAgeFilters, selectedGenders, selectedSizes, allPetsWithStatus
+    ) {
+        applyFilters()
+    }
+
+    val allBreeds = remember(allPetsWithStatus) {
+        allPetsWithStatus.map { it.pet.breed }.distinct().sorted()
+    }
+    
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -349,7 +358,7 @@ fun PetsScreen(navController: NavController) {
             
             // Results count
             Text(
-                text = "${filteredPets.size} thú cưng tìm thấy",
+                text = "${filteredPetsWithStatus.size} thú cưng tìm thấy",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                 modifier = Modifier
@@ -359,7 +368,7 @@ fun PetsScreen(navController: NavController) {
             )
             
             // Pets grid
-            if (filteredPets.isEmpty()) {
+            if (filteredPetsWithStatus.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -394,13 +403,16 @@ fun PetsScreen(navController: NavController) {
                     columns = GridCells.Fixed(2),
                     contentPadding = PaddingValues(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp), // Added for consistent spacing
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(filteredPets) { pet ->
+                    items(filteredPetsWithStatus) { petWithStatus ->
                         PetDetailCard(
-                            pet = pet,
-                            onClick = { navController.navigate("pet_detail/${pet.id}") }
+                            pet = petWithStatus.pet,
+                            isAdopted = petWithStatus.isAdopted, // Pass the adoption status
+                            onClick = {
+                                navController.navigate("pet_detail/${petWithStatus.pet.id}")
+                            }
                         )
                     }
                 }
@@ -408,3 +420,16 @@ fun PetsScreen(navController: NavController) {
         }
     }
 }
+
+// ... (AgeFilter, SizeFilter, etc. definitions if they are in this file)
+// It's assumed AgeFilter, SizeFilter, PetCategory, PetGender are defined elsewhere or correctly imported.
+
+// Dummy SizeFilter for compilation if not defined elsewhere
+// enum class SizeFilter(val displayName: String) {
+//     SMALL("Nhỏ"), MEDIUM("Vừa"), LARGE("Lớn")
+// }
+// Dummy AgeFilter for compilation if not defined elsewhere
+// enum class AgeFilter(val displayName: String) {
+//     PUPPY("Nhí"), YOUNG("Nhỡ"), ADULT("Trưởng thành"), SENIOR("Già")
+//     fun matches(ageString: String): Boolean = this.displayName == ageString // Example match logic
+// }

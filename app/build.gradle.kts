@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -58,7 +59,20 @@ android {
     }
 }
 
+// Force Kotlin version resolution to avoid mixing incompatible versions
+configurations.all {
+    resolutionStrategy.force(
+        "org.jetbrains.kotlin:kotlin-stdlib:1.9.0",
+        "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0",
+        "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.0",
+        "org.jetbrains.kotlin:kotlin-reflect:1.9.0"
+    )
+}
+
 dependencies {
+    // Kotlin standard library
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.9.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -121,4 +135,11 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.8.1")
     
     implementation( libs.androidx.navigation.compose)
+
+    // Room for database
+    val room_version = "2.6.1"  // Use a version compatible with Kotlin 1.9.0
+
+    implementation("androidx.room:room-runtime:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
 }

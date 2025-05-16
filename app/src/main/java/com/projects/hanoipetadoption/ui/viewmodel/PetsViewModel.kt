@@ -1,12 +1,11 @@
-package com.projects.hanoipetadoption.presentation.viewmodel
+package com.projects.hanoipetadoption.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.projects.hanoipetadoption.data.mapper.toPresentation
 import com.projects.hanoipetadoption.domain.usecase.GetPetsUseCase
-import com.projects.hanoipetadoption.presentation.state.PetDetailState
+import com.projects.hanoipetadoption.ui.state.PetDetailState
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 

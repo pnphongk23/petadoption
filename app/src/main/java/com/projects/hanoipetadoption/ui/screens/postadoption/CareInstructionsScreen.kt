@@ -45,8 +45,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.asFlow
 import com.projects.hanoipetadoption.data.model.postadoption.CareInstructions
-import com.projects.hanoipetadoption.presentation.viewmodel.postadoption.CareInstructionsState
-import com.projects.hanoipetadoption.presentation.viewmodel.postadoption.CareInstructionsViewModel
+import com.projects.hanoipetadoption.ui.viewmodel.postadoption.CareInstructionsState
+import com.projects.hanoipetadoption.ui.viewmodel.postadoption.CareInstructionsViewModel
 import org.koin.androidx.compose.koinViewModel
 
 /**

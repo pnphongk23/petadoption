@@ -1,4 +1,4 @@
-package com.projects.hanoipetadoption.presentation.viewmodel.postadoption
+package com.projects.hanoipetadoption.ui.viewmodel.postadoption
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

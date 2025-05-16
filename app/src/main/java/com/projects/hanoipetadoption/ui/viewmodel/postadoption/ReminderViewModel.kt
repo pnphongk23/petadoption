@@ -1,4 +1,4 @@
-package com.projects.hanoipetadoption.presentation.viewmodel.postadoption
+package com.projects.hanoipetadoption.ui.viewmodel.postadoption
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -123,7 +123,8 @@ class ReminderViewModel(
                                 val updatedUpcoming = currentUpcoming.reminders.map { 
                                     if (it.id == reminderId) it.copy(isCompleted = true) else it 
                                 }
-                                _upcomingRemindersState.value = ReminderState.Success(updatedUpcoming)
+                                _upcomingRemindersState.value =
+                                    ReminderState.Success(updatedUpcoming)
                             }
                         }
                         onComplete(success)

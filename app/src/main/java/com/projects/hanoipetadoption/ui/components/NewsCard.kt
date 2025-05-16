@@ -1,4 +1,4 @@
-package com.projects.hanoipetadoption.presentation.components
+package com.projects.hanoipetadoption.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

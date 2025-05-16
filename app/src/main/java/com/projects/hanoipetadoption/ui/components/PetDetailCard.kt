@@ -1,4 +1,4 @@
-package com.projects.hanoipetadoption.presentation.components
+package com.projects.hanoipetadoption.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.Badge
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,6 +39,8 @@ import com.projects.hanoipetadoption.ui.model.Pet
 @Composable
 fun PetDetailCard(
     pet: Pet,
+    modifier: Modifier = Modifier,
+    isAdopted: Boolean = false, // Added isAdopted parameter
     onClick: () -> Unit
 ) {
     var isFavorite by remember { mutableStateOf(pet.isFavorite) }
@@ -48,7 +51,7 @@ fun PetDetailCard(
             containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(4.dp)
     ) {
@@ -63,64 +66,72 @@ fun PetDetailCard(
                     .height(150.dp)
             )
             
-            // Pet details
-            Column(
-                modifier = Modifier.padding(12.dp)
+            // Display Adopted Badge if the pet is adopted
+            if (isAdopted) {
+                Badge(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(4.dp),
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer, // Or your desired color
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+                ) {
+                    Text("Đã nhận nuôi", style = MaterialTheme.typography.labelSmall)
+                }
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+        ) {
+            Text(
+                text = pet.name,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+            
+            IconButton(
+                onClick = { isFavorite = !isFavorite },
+                modifier = Modifier.size(24.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = pet.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f)
-                    )
-                    
-                    IconButton(
-                        onClick = { isFavorite = !isFavorite },
-                        modifier = Modifier.size(24.dp)
-                    ) {
-                        Icon(
-                            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-                            tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        )
-                    }
-                }
-                
-                Text(
-                    text = pet.breed,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                Icon(
+                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                    tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
+            }
+            
+            Text(
+                text = pet.breed,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${pet.gender.displayName} • ${pet.age}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+            }
+            
+            // First characteristic tag
+            if (pet.characteristics.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
                 
-                Spacer(modifier = Modifier.height(4.dp))
-                
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "${pet.gender.displayName} • ${pet.age}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    )
-                }
-                
-                // First characteristic tag
-                if (pet.characteristics.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    CharacteristicTag(
-                        text = pet.characteristics.first(),
-                        modifier = Modifier.align(Alignment.Start)
-                    )
-                }
+                CharacteristicTag(
+                    text = pet.characteristics.first(),
+                    modifier = Modifier.align(Alignment.Start)
+                )
             }
         }
     }

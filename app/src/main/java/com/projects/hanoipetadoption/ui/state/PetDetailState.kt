@@ -1,4 +1,4 @@
-package com.projects.hanoipetadoption.presentation.state
+package com.projects.hanoipetadoption.ui.state
 
 import com.projects.hanoipetadoption.ui.model.Pet
 

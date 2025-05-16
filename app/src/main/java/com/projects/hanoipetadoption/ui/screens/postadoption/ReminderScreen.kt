@@ -55,8 +55,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.asFlow
 import com.projects.hanoipetadoption.data.model.postadoption.Reminder
 import com.projects.hanoipetadoption.data.model.postadoption.ReminderType
-import com.projects.hanoipetadoption.presentation.viewmodel.postadoption.ReminderState
-import com.projects.hanoipetadoption.presentation.viewmodel.postadoption.ReminderViewModel
+import com.projects.hanoipetadoption.ui.viewmodel.postadoption.ReminderState
+import com.projects.hanoipetadoption.ui.viewmodel.postadoption.ReminderViewModel
 import org.koin.androidx.compose.koinViewModel
 import java.text.SimpleDateFormat
 import java.util.Date

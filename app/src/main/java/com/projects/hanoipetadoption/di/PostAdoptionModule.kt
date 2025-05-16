@@ -41,10 +41,10 @@ import com.projects.hanoipetadoption.domain.usecase.postadoption.GetRemindersFor
 import com.projects.hanoipetadoption.domain.usecase.postadoption.GetUpcomingRemindersUseCase
 import com.projects.hanoipetadoption.domain.usecase.postadoption.MarkReminderCompleteUseCase
 import com.projects.hanoipetadoption.domain.usecase.postadoption.OpenCareDocumentUseCase
-import com.projects.hanoipetadoption.presentation.viewmodel.postadoption.CareInstructionsViewModel
-import com.projects.hanoipetadoption.presentation.viewmodel.postadoption.HealthTrackerViewModel
-import com.projects.hanoipetadoption.presentation.viewmodel.postadoption.PetStatusViewModel
-import com.projects.hanoipetadoption.presentation.viewmodel.postadoption.ReminderViewModel
+import com.projects.hanoipetadoption.ui.viewmodel.postadoption.CareInstructionsViewModel
+import com.projects.hanoipetadoption.ui.viewmodel.postadoption.HealthTrackerViewModel
+import com.projects.hanoipetadoption.ui.viewmodel.postadoption.PetStatusViewModel
+import com.projects.hanoipetadoption.ui.viewmodel.postadoption.ReminderViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit

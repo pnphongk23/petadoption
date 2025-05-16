@@ -8,7 +8,7 @@ espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.4"
 activityCompose = "1.9.1"
 composeBom = "2023.08.00"
-koinAndroid = "4.0.2"
+koinAndroid = "3.5.0"
 navigationCompose = "2.8.9"
 
 [libraries]

@@ -1,4 +1,4 @@
-package com.projects.hanoipetadoption.presentation.components
+package com.projects.hanoipetadoption.ui.components
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
