@@ -4,7 +4,6 @@ import com.projects.hanoipetadoption.data.model.PetData
 import com.projects.hanoipetadoption.domain.model.GenderDomain
 import com.projects.hanoipetadoption.domain.model.PetDomain
 import com.projects.hanoipetadoption.ui.model.Pet
-import com.projects.hanoipetadoption.ui.model.PetCategory
 import com.projects.hanoipetadoption.ui.model.PetGender
 
 /**
@@ -81,6 +80,5 @@ fun PetDomain.toPresentation(): Pet {
         description = description,
         imageRes = imageRes,
         isFavorite = isFavorite,
-        category = PetCategory.DOG // Default category, replace with actual data when available
     )
 }

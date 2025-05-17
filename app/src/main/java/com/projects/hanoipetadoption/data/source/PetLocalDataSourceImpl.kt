@@ -117,7 +117,7 @@ class PetLocalDataSourceImpl(
                 PetData(
                     id = pet.id,
                     name = pet.name,
-                    category = pet.category.name,
+                    category = pet.breed,
                     breed = pet.breed,
                     age = pet.age,
                     gender = pet.gender,

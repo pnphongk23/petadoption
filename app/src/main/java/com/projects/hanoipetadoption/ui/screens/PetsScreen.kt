@@ -40,10 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.projects.hanoipetadoption.R
 import com.projects.hanoipetadoption.ui.components.PetDetailCard
-import com.projects.hanoipetadoption.ui.model.PetCategory
 import com.projects.hanoipetadoption.ui.model.PetGender
 import com.projects.hanoipetadoption.ui.model.PetsUiState
-import com.projects.hanoipetadoption.ui.model.PetWithAdoptionStatus // Ensure this is imported
 import com.projects.hanoipetadoption.ui.viewmodel.PetViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -67,7 +65,7 @@ enum class SizeFilter(val displayName: String) {
     LARGE("Lớn")
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PetsScreen(
     navController: NavController,
@@ -79,7 +77,6 @@ fun PetsScreen(
     var isSearchActive by remember { mutableStateOf(false) }
     
     // Filter states
-    val selectedCategories = remember { mutableStateListOf<PetCategory>() }
     val selectedBreeds = remember { mutableStateListOf<String>() }
     val selectedAgeFilters = remember { mutableStateListOf<AgeFilter>() }
     val selectedGenders = remember { mutableStateListOf<PetGender>() }
@@ -107,11 +104,6 @@ fun PetsScreen(
                     it.pet.name.contains(searchQuery, ignoreCase = true) ||
                     it.pet.breed.contains(searchQuery, ignoreCase = true)
                 }
-            }
-
-            // Category filter
-            if (selectedCategories.isNotEmpty()) {
-                currentList = currentList.filter { selectedCategories.contains(it.pet.category) }
             }
 
             // Breed filter
@@ -246,30 +238,6 @@ fun PetsScreen(
                                 style = MaterialTheme.typography.titleSmall,
                                 modifier = Modifier.padding(vertical = 8.dp)
                             )
-                            
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                PetCategory.entries.forEach { category ->
-                                    val isSelected = selectedCategories.contains(category)
-                                    FilterChip(
-                                        selected = isSelected,
-                                        onClick = {
-                                            if (isSelected) {
-                                                selectedCategories.remove(category)
-                                            } else {
-                                                selectedCategories.add(category)
-                                            }
-                                        },
-                                        label = { Text(category.displayName) },
-                                        colors = FilterChipDefaults.filterChipColors(
-                                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                        )
-                                    )
-                                }
-                            }
                             
                             Spacer(modifier = Modifier.height(8.dp))
                             

@@ -6,7 +6,6 @@ object SamplePetsData {
             Pet(
                 id = "1",
                 name = "Kiki",
-                category = PetCategory.DOG,
                 breed = "Poodle",
                 age = "Nhỡ",
                 gender = PetGender.MALE,
@@ -18,7 +17,6 @@ object SamplePetsData {
             Pet(
                 id = "2",
                 name = "Tôm",
-                category = PetCategory.CAT,
                 breed = "Mèo ta",
                 age = "Nhí",
                 gender = PetGender.MALE,
@@ -30,7 +28,6 @@ object SamplePetsData {
             Pet(
                 id = "3",
                 name = "Dừa",
-                category = PetCategory.CAT,
                 breed = "Mèo Ta",
                 age = "Nhí",
                 gender = PetGender.FEMALE,
@@ -42,7 +39,6 @@ object SamplePetsData {
             Pet(
                 id = "4",
                 name = "Minnie",
-                category = PetCategory.CAT,
                 breed = "Mèo Ta",
                 age = "Nhỡ",
                 gender = PetGender.FEMALE,
@@ -54,7 +50,6 @@ object SamplePetsData {
             Pet(
                 id = "5",
                 name = "Bún",
-                category = PetCategory.DOG,
                 breed = "Poodle",
                 age = "Nhỡ",
                 gender = PetGender.FEMALE,
@@ -66,7 +61,6 @@ object SamplePetsData {
             Pet(
                 id = "6",
                 name = "Kem",
-                category = PetCategory.CAT,
                 breed = "Mèo Tây",
                 age = "Nhí",
                 gender = PetGender.FEMALE,
@@ -78,7 +72,6 @@ object SamplePetsData {
             Pet(
                 id = "7",
                 name = "Táo",
-                category = PetCategory.DOG,
                 breed = "Chó Ta",
                 age = "Nhỡ",
                 gender = PetGender.MALE,
@@ -90,7 +83,6 @@ object SamplePetsData {
             Pet(
                 id = "8",
                 name = "Best",
-                category = PetCategory.DOG,
                 breed = "Poodle",
                 age = "Nhỡ",
                 gender = PetGender.MALE,
@@ -102,7 +94,6 @@ object SamplePetsData {
             Pet(
                 id = "9",
                 name = "Bơ",
-                category = PetCategory.CAT,
                 breed = "Mèo Tây",
                 age = "Nhỡ",
                 gender = PetGender.MALE,
@@ -114,7 +105,6 @@ object SamplePetsData {
             Pet(
                 id = "10",
                 name = "Pepsi",
-                category = PetCategory.CAT,
                 breed = "Mèo Ta",
                 age = "Nhỡ",
                 gender = PetGender.MALE,
@@ -126,7 +116,6 @@ object SamplePetsData {
             Pet(
                 id = "11",
                 name = "Moa Moa",
-                category = PetCategory.OTHER,
                 breed = "Cún Lai",
                 age = "Nhỡ",
                 gender = PetGender.FEMALE,
@@ -138,7 +127,6 @@ object SamplePetsData {
             Pet(
                 id = "12",
                 name = "Soda",
-                category = PetCategory.CAT,
                 breed = "Mèo Tây",
                 age = "Nhỡ",
                 gender = PetGender.FEMALE,
@@ -150,7 +138,6 @@ object SamplePetsData {
             Pet(
                 id = "13",
                 name = "Susu",
-                category = PetCategory.DOG,
                 breed = "Chó Ta",
                 age = "Trưởng thành",
                 gender = PetGender.MALE,
@@ -162,7 +149,6 @@ object SamplePetsData {
             Pet(
                 id = "14",
                 name = "Captain",
-                category = PetCategory.OTHER,
                 breed = "Lạp xưởng",
                 age = "Trưởng thành",
                 gender = PetGender.MALE,
@@ -174,7 +160,6 @@ object SamplePetsData {
             Pet(
                 id = "15",
                 name = "Củ cải",
-                category = PetCategory.CAT,
                 breed = "Mèo Ta",
                 age = "Trưởng thành",
                 gender = PetGender.FEMALE,
@@ -186,7 +171,6 @@ object SamplePetsData {
             Pet(
                 id = "16",
                 name = "Tuyết",
-                category = PetCategory.CAT,
                 breed = "Mèo Ta",
                 age = "Nhỡ",
                 gender = PetGender.MALE,
@@ -198,7 +182,6 @@ object SamplePetsData {
             Pet(
                 id = "17",
                 name = "Mây",
-                category = PetCategory.CAT,
                 breed = "Mèo Tây",
                 age = "Nhỡ",
                 gender = PetGender.MALE,
@@ -210,7 +193,6 @@ object SamplePetsData {
             Pet(
                 id = "18",
                 name = "Xúc xích",
-                category = PetCategory.CAT,
                 breed = "Mèo Ta",
                 age = "Trưởng thành",
                 gender = PetGender.FEMALE,
@@ -222,7 +204,6 @@ object SamplePetsData {
             Pet(
                 id = "19",
                 name = "Tiger",
-                category = PetCategory.CAT,
                 breed = "Mèo Ta",
                 age = "Nhỡ",
                 gender = PetGender.MALE,
@@ -234,7 +215,6 @@ object SamplePetsData {
             Pet(
                 id = "20",
                 name = "Leo",
-                category = PetCategory.DOG,
                 breed = "Chó Ta",
                 age = "Nhỡ",
                 gender = PetGender.MALE,

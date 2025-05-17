@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.projects.hanoipetadoption.domain.usecase.GetAdoptedPetsUseCase
 import com.projects.hanoipetadoption.ui.mapper.toUiModels
 import com.projects.hanoipetadoption.ui.model.Pet
-import com.projects.hanoipetadoption.ui.model.PetCategory
 import com.projects.hanoipetadoption.ui.model.PetGender
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

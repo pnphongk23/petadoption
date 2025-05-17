@@ -147,7 +147,7 @@ fun AdoptedPetItem(
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = pet.category.displayName,
+                text = pet.breed,
                 style = MaterialTheme.typography.bodyMedium
             )
             // Additional pet details can be added here
