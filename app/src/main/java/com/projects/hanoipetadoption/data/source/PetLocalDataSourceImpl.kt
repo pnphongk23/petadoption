@@ -10,8 +10,10 @@ import com.projects.hanoipetadoption.data.mapper.toPetData
 import com.projects.hanoipetadoption.data.mapper.toPetEntity
 import com.projects.hanoipetadoption.data.mapper.toRequirementEntities
 import com.projects.hanoipetadoption.data.model.PetData
+import com.projects.hanoipetadoption.data.model.PetWithAdoptionStatusEntity
 import com.projects.hanoipetadoption.ui.model.SamplePetsData
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 /**
@@ -83,6 +85,14 @@ class PetLocalDataSourceImpl(
     override suspend fun deletePet(id: String) = withContext(Dispatchers.IO) {
         // Delete related data (will cascade due to foreign key constraints)
         petDao.deletePetById(id)
+    }
+    
+    /**
+     * Gets all pets with their adoption status using a JOIN query
+     * @return Flow of list of pet entities with adoption status
+     */
+    override fun getAllPetsWithAdoptionStatus(): Flow<List<PetWithAdoptionStatusEntity>> {
+        return petDao.getAllPetsWithAdoptionStatus()
     }
     
     private suspend fun deleteRelatedData(petId: String) {

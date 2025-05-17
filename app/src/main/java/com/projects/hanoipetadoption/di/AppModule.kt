@@ -64,7 +64,7 @@ val appModule = module {
     factory { GetPetByIdUseCase(get()) }
     factory { GetPetsUseCase(get()) }
     factory { TogglePetFavoriteUseCase(get()) }
-    factory { GetAdoptedPetsUseCase(get(), get()) }
+    factory { GetAdoptedPetsUseCase(get()) }
 
     // ViewModels
     viewModel { PetDetailViewModel(get(), get()) }

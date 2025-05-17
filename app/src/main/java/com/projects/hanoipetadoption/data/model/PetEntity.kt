@@ -1,12 +1,18 @@
 package com.projects.hanoipetadoption.data.model
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 /**
- * Entity class for pets table
+ * Entity class for pets table with optimized indexing
  */
-@Entity(tableName = "pets")
+@Entity(
+    tableName = "pets",
+    indices = [
+        Index(value = ["id"], unique = true)
+    ]
+)
 data class PetEntity(
     @PrimaryKey val id: String,
     val name: String,

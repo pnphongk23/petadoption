@@ -48,8 +48,8 @@ import org.koin.androidx.compose.koinViewModel
 enum class AdoptedPetHubTab(val title: String) {
     STATUS("Cập nhật"),
     HEALTH("Sức khỏe"),
-    REMINDERS("Nhắc nhở"),
-    CARE("Hướng dẫn")
+    REMINDERS("Nhắc nhở")
+//    CARE("Hướng dẫn")
 }
 
 /**
@@ -129,10 +129,10 @@ fun AdoptedPetHubScreen(
                                     imageVector = Icons.Default.Notifications,
                                     contentDescription = null
                                 )
-                                AdoptedPetHubTab.CARE -> Icon(
-                                    imageVector = Icons.Default.Description,
-                                    contentDescription = null
-                                )
+//                                AdoptedPetHubTab.CARE -> Icon(
+//                                    imageVector = Icons.Default.Description,
+//                                    contentDescription = null
+//                                )
                             }
                         }
                     )
@@ -155,7 +155,7 @@ fun AdoptedPetHubScreen(
                     petId = petId,
                     onAddReminderClick = { showAddReminderDialog = true }
                 )
-                AdoptedPetHubTab.CARE -> CareInstructionsScreen(petId = petId)
+//                AdoptedPetHubTab.CARE -> CareInstructionsScreen(petId = petId)
             }
         }
 

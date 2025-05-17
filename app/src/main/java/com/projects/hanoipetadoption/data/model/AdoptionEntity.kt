@@ -1,10 +1,29 @@
 package com.projects.hanoipetadoption.data.model
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.util.UUID
 
-@Entity(tableName = "adoption_applications")
+/**
+ * Entity class for adoption applications with optimized indexing and relationships
+ */
+@Entity(
+    tableName = "adoption_applications",
+    indices = [
+        Index(value = ["petId"]),
+        Index(value = ["status"])
+    ],
+    foreignKeys = [
+        ForeignKey(
+            entity = PetEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["petId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
 data class AdoptionEntity(
     @PrimaryKey val id: String = UUID.randomUUID().toString(),
     val petId: String,

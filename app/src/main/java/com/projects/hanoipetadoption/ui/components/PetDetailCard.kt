@@ -33,6 +33,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.RequestBuilderTransform
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.projects.hanoipetadoption.ui.model.Pet
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalGlideComposeApi::class)
@@ -61,6 +63,9 @@ fun PetDetailCard(
                 model = pet.imageRes,
                 contentDescription = pet.name,
                 contentScale = ContentScale.Crop,
+                requestBuilderTransform = {
+                    it.diskCacheStrategy(DiskCacheStrategy.DATA)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp)
@@ -70,7 +75,7 @@ fun PetDetailCard(
             if (isAdopted) {
                 Badge(
                     modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
+                        .align(Alignment.Start)
                         .padding(4.dp),
                     containerColor = MaterialTheme.colorScheme.tertiaryContainer, // Or your desired color
                     contentColor = MaterialTheme.colorScheme.onTertiaryContainer
@@ -84,25 +89,29 @@ fun PetDetailCard(
             modifier = Modifier
                 .padding(horizontal = 12.dp, vertical = 8.dp)
         ) {
-            Text(
-                text = pet.name,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f)
-            )
-            
-            IconButton(
-                onClick = { isFavorite = !isFavorite },
-                modifier = Modifier.size(24.dp)
-            ) {
-                Icon(
-                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                    contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-                    tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                )
+            Row {
+                Text(
+                    text = pet.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp),
+                    overflow = TextOverflow.Ellipsis)
+
+                IconButton(
+                    onClick = { isFavorite = !isFavorite },
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                        tint = if (isFavorite) Color.Red else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
             }
+
             
             Text(
                 text = pet.breed,

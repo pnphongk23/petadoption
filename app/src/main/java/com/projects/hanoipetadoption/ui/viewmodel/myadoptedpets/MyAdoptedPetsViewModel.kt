@@ -46,38 +46,4 @@ class MyAdoptedPetsViewModel(
             }
         }
     }
-    
-    /**
-     * Get sample adopted pets (temporary implementation)
-     * In a real app, this would come from a repository
-     */
-    private fun getSampleAdoptedPets(): List<Pet> {
-        // Sample data - replace with actual repository call
-        return listOf(
-            Pet(
-                id = "1",
-                name = "Mèo Con",
-                age = "2 years",
-                category = PetCategory.CAT,
-                breed = "Tabby",
-                imageRes = "https://example.com/cat.jpg",
-                description = "A friendly tabby cat",
-                gender = PetGender.MALE,
-                isFavorite = false,
-                characteristics = listOf("Friendly", "Playful")
-            ),
-            Pet(
-                id = "2",
-                name = "Lu Lu",
-                age = "1 year",
-                category = PetCategory.DOG,
-                breed = "Labrador",
-                imageRes = "https://example.com/dog.jpg",
-                description = "An energetic Labrador puppy",
-                gender = PetGender.FEMALE,
-                isFavorite = false,
-                characteristics = listOf("Energetic", "Friendly")
-            )
-        )
-    }
 } 

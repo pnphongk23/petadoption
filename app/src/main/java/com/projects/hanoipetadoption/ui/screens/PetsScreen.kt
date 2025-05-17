@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -39,9 +40,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.projects.hanoipetadoption.R
 import com.projects.hanoipetadoption.ui.components.PetDetailCard
-import com.projects.hanoipetadoption.ui.model.Pet
 import com.projects.hanoipetadoption.ui.model.PetCategory
 import com.projects.hanoipetadoption.ui.model.PetGender
+import com.projects.hanoipetadoption.ui.model.PetsUiState
 import com.projects.hanoipetadoption.ui.model.PetWithAdoptionStatus // Ensure this is imported
 import com.projects.hanoipetadoption.ui.viewmodel.PetViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -72,8 +73,7 @@ fun PetsScreen(
     navController: NavController,
     viewModel: PetViewModel = koinViewModel() // Injected ViewModel using Koin
 ) {
-    val allPetsWithStatus by viewModel.petsWithAdoptionStatus.collectAsState()
-    var filteredPetsWithStatus by remember(allPetsWithStatus) { mutableStateOf(allPetsWithStatus) }
+    val uiState by viewModel.uiState.collectAsState()
 
     var searchQuery by remember { mutableStateOf("") }
     var isSearchActive by remember { mutableStateOf(false) }
@@ -86,53 +86,57 @@ fun PetsScreen(
     val selectedSizes = remember { mutableStateListOf<SizeFilter>() }
     val showFilters by remember { mutableStateOf(false) }
 
-    // Function to apply all filters
-    fun applyFilters() {
-        var currentList = allPetsWithStatus
-
-        // Search query filter (name or breed)
-        if (searchQuery.isNotBlank()) {
-            currentList = currentList.filter {
-                it.pet.name.contains(searchQuery, ignoreCase = true) ||
-                it.pet.breed.contains(searchQuery, ignoreCase = true)
+    // Get all pets to compute derived values like breeds list
+    val allPetsWithStatus = remember {
+        derivedStateOf {
+            when (uiState) {
+                is PetsUiState.Success -> (uiState as PetsUiState.Success).pets
+                else -> emptyList()
             }
         }
-
-        // Category filter
-        if (selectedCategories.isNotEmpty()) {
-            currentList = currentList.filter { selectedCategories.contains(it.pet.category) }
-        }
-
-        // Breed filter
-        if (selectedBreeds.isNotEmpty()) {
-            currentList = currentList.filter { selectedBreeds.contains(it.pet.breed) }
-        }
-
-        // Age filter
-        if (selectedAgeFilters.isNotEmpty()) {
-            currentList = currentList.filter { petWithStatus ->
-                selectedAgeFilters.any { ageFilter -> ageFilter.predicate(petWithStatus.pet.age) }
-            }
-        }
-
-        // Gender filter
-        if (selectedGenders.isNotEmpty()) {
-            currentList = currentList.filter { selectedGenders.contains(it.pet.gender) }
-        }
-
-        filteredPetsWithStatus = currentList
     }
 
-    // Effect to apply filters whenever a filter state changes
-    LaunchedEffect(
-        searchQuery, selectedCategories, selectedBreeds,
-        selectedAgeFilters, selectedGenders, selectedSizes, allPetsWithStatus
-    ) {
-        applyFilters()
+    // Use derivedStateOf for efficient filtering
+    val filteredPetsWithStatus by remember {
+        derivedStateOf {
+            var currentList = allPetsWithStatus.value
+
+            // Search query filter (name or breed)
+            if (searchQuery.isNotBlank()) {
+                currentList = currentList.filter {
+                    it.pet.name.contains(searchQuery, ignoreCase = true) ||
+                    it.pet.breed.contains(searchQuery, ignoreCase = true)
+                }
+            }
+
+            // Category filter
+            if (selectedCategories.isNotEmpty()) {
+                currentList = currentList.filter { selectedCategories.contains(it.pet.category) }
+            }
+
+            // Breed filter
+            if (selectedBreeds.isNotEmpty()) {
+                currentList = currentList.filter { selectedBreeds.contains(it.pet.breed) }
+            }
+
+            // Age filter
+            if (selectedAgeFilters.isNotEmpty()) {
+                currentList = currentList.filter { petWithStatus ->
+                    selectedAgeFilters.any { ageFilter -> ageFilter.predicate(petWithStatus.pet.age) }
+                }
+            }
+
+            // Gender filter
+            if (selectedGenders.isNotEmpty()) {
+                currentList = currentList.filter { selectedGenders.contains(it.pet.gender) }
+            }
+
+            currentList
+        }
     }
 
     val allBreeds = remember(allPetsWithStatus) {
-        allPetsWithStatus.map { it.pet.breed }.distinct().sorted()
+        allPetsWithStatus.value.map { it.pet.breed }.distinct().sorted()
     }
     
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -157,263 +161,309 @@ fun PetsScreen(
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            // Search bar
-            SearchBar(
-                query = searchQuery,
-                onQueryChange = { 
-                    searchQuery = it
-                    applyFilters()
-                },
-                onSearch = { 
-                    isSearchActive = false
-                    applyFilters()
-                },
-                active = false,
-                onActiveChange = { isSearchActive = it },
-                placeholder = { Text("Tìm kiếm theo tên hoặc giống") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search Icon") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                // Search suggestions would go here
-            }
-            
-            // Filter chips
-            if (showFilters) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                ) {
-                    Text(
-                        text = "Phân loại thú cưng",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        PetCategory.entries.forEach { category ->
-                            val isSelected = selectedCategories.contains(category)
-                            FilterChip(
-                                selected = isSelected,
-                                onClick = {
-                                    if (isSelected) {
-                                        selectedCategories.remove(category)
-                                    } else {
-                                        selectedCategories.add(category)
-                                    }
-                                    applyFilters()
-                                },
-                                label = { Text(category.displayName) },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            )
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = "Giống",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        allBreeds.take(5).forEach { breed ->
-                            val isSelected = selectedBreeds.contains(breed)
-                            FilterChip(
-                                selected = isSelected,
-                                onClick = {
-                                    if (isSelected) {
-                                        selectedBreeds.remove(breed)
-                                    } else {
-                                        selectedBreeds.add(breed)
-                                    }
-                                    applyFilters()
-                                },
-                                label = { Text(breed) },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            )
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = "Tuổi",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        AgeFilter.entries.forEach { ageFilter ->
-                            val isSelected = selectedAgeFilters.contains(ageFilter)
-                            FilterChip(
-                                selected = isSelected,
-                                onClick = {
-                                    if (isSelected) {
-                                        selectedAgeFilters.remove(ageFilter)
-                                    } else {
-                                        selectedAgeFilters.add(ageFilter)
-                                    }
-                                    applyFilters()
-                                },
-                                label = { Text(ageFilter.displayName) },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            )
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = "Giới tính",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        PetGender.entries.forEach { gender ->
-                            val isSelected = selectedGenders.contains(gender)
-                            FilterChip(
-                                selected = isSelected,
-                                onClick = {
-                                    if (isSelected) {
-                                        selectedGenders.remove(gender)
-                                    } else {
-                                        selectedGenders.add(gender)
-                                    }
-                                    applyFilters()
-                                },
-                                label = { Text(gender.displayName) },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            )
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = "Kích thước",
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    )
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        SizeFilter.entries.forEach { size ->
-                            val isSelected = selectedSizes.contains(size)
-                            FilterChip(
-                                selected = isSelected,
-                                onClick = {
-                                    if (isSelected) {
-                                        selectedSizes.remove(size)
-                                    } else {
-                                        selectedSizes.add(size)
-                                    }
-                                    applyFilters()
-                                },
-                                label = { Text(size.displayName) },
-                                colors = FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                            )
-                        }
-                    }
-                }
-            }
-            
-            // Results count
-            Text(
-                text = "${filteredPetsWithStatus.size} thú cưng tìm thấy",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
-                textAlign = TextAlign.Start
-            )
-            
-            // Pets grid
-            if (filteredPetsWithStatus.isEmpty()) {
+        when (uiState) {
+            is PetsUiState.Loading -> {
+                // Show loading indicator
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp),
+                        .padding(padding),
                     contentAlignment = Alignment.Center
                 ) {
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f)
-                        ),
+                    CircularProgressIndicator()
+                }
+            }
+            
+            is PetsUiState.Error -> {
+                // Show error state
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.padding(16.dp)
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Text(
-                                text = "Không tìm thấy thú cưng nào",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Hãy thử thay đổi bộ lọc tìm kiếm",
-                                style = MaterialTheme.typography.bodyMedium
+                        Text(
+                            text = "Lỗi tải dữ liệu",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = (uiState as PetsUiState.Error).message,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        IconButton(onClick = { viewModel.refreshPets() }) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Thử lại"
                             )
                         }
                     }
                 }
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp), // Added for consistent spacing
-                    modifier = Modifier.fillMaxSize()
+            }
+            
+            is PetsUiState.Success -> {
+                // Show content
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
                 ) {
-                    items(filteredPetsWithStatus) { petWithStatus ->
-                        PetDetailCard(
-                            pet = petWithStatus.pet,
-                            isAdopted = petWithStatus.isAdopted, // Pass the adoption status
-                            onClick = {
-                                navController.navigate("pet_detail/${petWithStatus.pet.id}")
+                    // Search bar
+                    SearchBar(
+                        query = searchQuery,
+                        onQueryChange = { 
+                            searchQuery = it
+                        },
+                        onSearch = { 
+                            isSearchActive = false
+                        },
+                        active = false,
+                        onActiveChange = { isSearchActive = it },
+                        placeholder = { Text("Tìm kiếm theo tên hoặc giống") },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search Icon") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        // Search suggestions would go here
+                    }
+                    
+                    // Filter chips
+                    if (showFilters) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            Text(
+                                text = "Phân loại thú cưng",
+                                style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                            
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                PetCategory.entries.forEach { category ->
+                                    val isSelected = selectedCategories.contains(category)
+                                    FilterChip(
+                                        selected = isSelected,
+                                        onClick = {
+                                            if (isSelected) {
+                                                selectedCategories.remove(category)
+                                            } else {
+                                                selectedCategories.add(category)
+                                            }
+                                        },
+                                        label = { Text(category.displayName) },
+                                        colors = FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    )
+                                }
                             }
-                        )
+                            
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            Text(
+                                text = "Giống",
+                                style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                            
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                allBreeds.take(5).forEach { breed ->
+                                    val isSelected = selectedBreeds.contains(breed)
+                                    FilterChip(
+                                        selected = isSelected,
+                                        onClick = {
+                                            if (isSelected) {
+                                                selectedBreeds.remove(breed)
+                                            } else {
+                                                selectedBreeds.add(breed)
+                                            }
+                                        },
+                                        label = { Text(breed) },
+                                        colors = FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    )
+                                }
+                            }
+                            
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            Text(
+                                text = "Tuổi",
+                                style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                            
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                AgeFilter.entries.forEach { ageFilter ->
+                                    val isSelected = selectedAgeFilters.contains(ageFilter)
+                                    FilterChip(
+                                        selected = isSelected,
+                                        onClick = {
+                                            if (isSelected) {
+                                                selectedAgeFilters.remove(ageFilter)
+                                            } else {
+                                                selectedAgeFilters.add(ageFilter)
+                                            }
+                                        },
+                                        label = { Text(ageFilter.displayName) },
+                                        colors = FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    )
+                                }
+                            }
+                            
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            Text(
+                                text = "Giới tính",
+                                style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                            
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                PetGender.entries.forEach { gender ->
+                                    val isSelected = selectedGenders.contains(gender)
+                                    FilterChip(
+                                        selected = isSelected,
+                                        onClick = {
+                                            if (isSelected) {
+                                                selectedGenders.remove(gender)
+                                            } else {
+                                                selectedGenders.add(gender)
+                                            }
+                                        },
+                                        label = { Text(gender.displayName) },
+                                        colors = FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    )
+                                }
+                            }
+                            
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            Text(
+                                text = "Kích thước",
+                                style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                            
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                SizeFilter.entries.forEach { size ->
+                                    val isSelected = selectedSizes.contains(size)
+                                    FilterChip(
+                                        selected = isSelected,
+                                        onClick = {
+                                            if (isSelected) {
+                                                selectedSizes.remove(size)
+                                            } else {
+                                                selectedSizes.add(size)
+                                            }
+                                        },
+                                        label = { Text(size.displayName) },
+                                        colors = FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Results count
+                    Text(
+                        text = "${filteredPetsWithStatus.size} thú cưng tìm thấy",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        textAlign = TextAlign.Start
+                    )
+                    
+                    // Pets grid
+                    if (filteredPetsWithStatus.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.2f)
+                                ),
+                                modifier = Modifier.padding(16.dp)
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.padding(16.dp)
+                                ) {
+                                    Text(
+                                        text = "Không tìm thấy thú cưng nào",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        text = "Hãy thử thay đổi bộ lọc tìm kiếm",
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            contentPadding = PaddingValues(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp), // Added for consistent spacing
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(
+                                items = filteredPetsWithStatus,
+                                key = { it.pet.id } // Add stable key for better performance
+                            ) { petWithStatus ->
+                                PetDetailCard(
+                                    pet = petWithStatus.pet,
+                                    isAdopted = petWithStatus.isAdopted, // Pass the adoption status
+                                    onClick = {
+                                        navController.navigate("pet_detail/${petWithStatus.pet.id}")
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }

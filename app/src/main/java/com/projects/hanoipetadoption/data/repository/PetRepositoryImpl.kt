@@ -3,12 +3,18 @@ package com.projects.hanoipetadoption.data.repository
 
 import com.projects.hanoipetadoption.data.mapper.toDomain
 import com.projects.hanoipetadoption.data.mapper.toPetDataList
+import com.projects.hanoipetadoption.data.mapper.toPresentation
 import com.projects.hanoipetadoption.data.source.PetLocalDataSource
 import com.projects.hanoipetadoption.data.source.PetRemoteDataSource
 import com.projects.hanoipetadoption.domain.model.PetDomain
 import com.projects.hanoipetadoption.domain.repository.PetRepository
+import com.projects.hanoipetadoption.ui.model.Pet
+import com.projects.hanoipetadoption.ui.model.PetWithAdoptionStatus
 import com.projects.hanoipetadoption.util.ConnectivityChecker
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
@@ -91,5 +97,29 @@ class PetRepositoryImpl(
             // For other errors, just return failure
             Result.failure(e)
         }
+    }
+    
+    /**
+     * Gets all pets with their adoption status using a JOIN query
+     * This is more efficient than getting pets and adoption status separately
+     */
+    override fun getAllPetsWithAdoptionStatus(): Flow<Result<List<PetWithAdoptionStatus>>> {
+        return localDataSource.getAllPetsWithAdoptionStatus()
+            .map { petEntitiesWithStatus ->
+                // Map entity list to UI model list
+                val uiModelList = petEntitiesWithStatus.map { entityWithStatus ->
+                    val petDomain = entityWithStatus.toDomain()
+                    // Map to UI model
+                    PetWithAdoptionStatus(
+                        pet = petDomain.first.toPresentation(),
+                        isAdopted = petDomain.second
+                    )
+                }
+                Result.success(uiModelList)
+            }
+            .catch { error ->
+                // Handle any errors in the flow
+                emit(Result.failure(error))
+            }
     }
 }

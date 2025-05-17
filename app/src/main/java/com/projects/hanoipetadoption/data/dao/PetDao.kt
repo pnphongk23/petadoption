@@ -5,8 +5,11 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.projects.hanoipetadoption.data.model.PetEntity
+import com.projects.hanoipetadoption.data.model.PetWithAdoptionStatusEntity
+import kotlinx.coroutines.flow.Flow
 
 /**
  * DAO for Pet table
@@ -36,4 +39,21 @@ interface PetDao {
     
     @Query("DELETE FROM pets WHERE id = :petId")
     suspend fun deletePetById(petId: String)
+    
+    /**
+     * Gets all pets with their adoption status via a LEFT JOIN
+     * This query is more efficient than combining two separate queries
+     */
+    @Transaction
+    @Query("""
+        SELECT p.*, 
+            CASE WHEN a.petId IS NOT NULL THEN 1 ELSE 0 END as isAdopted
+        FROM pets p
+        LEFT JOIN (
+            SELECT DISTINCT petId 
+            FROM adoption_applications 
+            WHERE status = 'APPROVED'
+        ) a ON p.id = a.petId
+    """)
+    fun getAllPetsWithAdoptionStatus(): Flow<List<PetWithAdoptionStatusEntity>>
 } 
