@@ -17,7 +17,7 @@ interface HealthRemoteDataSource {
      * Get health records for a specific pet
      */
     suspend fun getHealthRecordsForPet(
-        petId: Int,
+        petId: String,
         recordType: RecordType? = null,
         startDate: Date? = null,
         endDate: Date? = null

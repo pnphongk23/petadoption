@@ -30,7 +30,7 @@ interface ReminderRepository {
      * @param petId ID of the pet
      * @return List of reminders for the pet
      */
-    suspend fun getRemindersForPet(petId: Int): Result<List<Reminder>>
+    suspend fun getRemindersForPet(petId: String): Result<List<Reminder>>
 
     /**
      * Mark a reminder as completed

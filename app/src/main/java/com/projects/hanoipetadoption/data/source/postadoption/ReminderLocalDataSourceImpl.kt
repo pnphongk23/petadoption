@@ -41,7 +41,7 @@ class ReminderLocalDataSourceImpl(
     }
     
     override suspend fun getRemindersForPet(
-        petId: Int,
+        petId: String,
         status: String?
     ): List<HealthRecord> {
         // Filter from in-memory cache (temporary)

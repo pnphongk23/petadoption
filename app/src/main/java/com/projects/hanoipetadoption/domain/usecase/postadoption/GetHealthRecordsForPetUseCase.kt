@@ -13,7 +13,7 @@ class GetHealthRecordsForPetUseCase(private val repository: HealthRepository) {
      * Execute the use case
      */
     suspend operator fun invoke(
-        petId: Int,
+        petId: String,
         recordType: RecordType? = null,
         startDate: Date? = null,
         endDate: Date? = null

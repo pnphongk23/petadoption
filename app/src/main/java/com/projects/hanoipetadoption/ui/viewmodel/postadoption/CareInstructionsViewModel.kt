@@ -33,7 +33,7 @@ class CareInstructionsViewModel(
     /**
      * Load care instructions for a pet
      */
-    fun loadCareInstructions(petId: Int) {
+    fun loadCareInstructions(petId: String) {
         _careInstructionsState.value = CareInstructionsState.Loading
         viewModelScope.launch {
             getCareInstructionsUseCase(petId)

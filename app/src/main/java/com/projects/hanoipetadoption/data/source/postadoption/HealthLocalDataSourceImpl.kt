@@ -46,7 +46,7 @@ class HealthLocalDataSourceImpl(
     }
     
     override suspend fun getHealthRecordsForPet(
-        petId: Int,
+        petId: String,
         recordType: String?
     ): List<HealthRecord> {
         // Return from in-memory cache (temporary)

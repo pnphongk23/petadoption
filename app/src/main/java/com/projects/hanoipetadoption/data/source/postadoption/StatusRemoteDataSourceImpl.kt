@@ -1,5 +1,7 @@
 package com.projects.hanoipetadoption.data.source.postadoption
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.projects.hanoipetadoption.data.model.postadoption.CommentCreate
 import com.projects.hanoipetadoption.data.model.postadoption.CommentResponse
 import com.projects.hanoipetadoption.data.model.postadoption.PetStatusUpdate
@@ -39,7 +41,7 @@ class StatusRemoteDataSourceImpl(
     }
     
     override suspend fun getPetStatusUpdates(
-        petId: Int,
+        petId: String,
         page: Int,
         pageSize: Int
     ): StatusUpdateListResponse {
@@ -98,6 +100,7 @@ class StatusRemoteDataSourceImpl(
         return newUpdate
     }
     
+    @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun addMediaToStatusUpdate(
         updateId: Int,
         file: File,
@@ -142,6 +145,7 @@ class StatusRemoteDataSourceImpl(
         return sampleComments[updateId] ?: emptyList()
     }
     
+    @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun addCommentToUpdate(
         updateId: Int,
         comment: CommentCreate
@@ -184,7 +188,7 @@ class StatusRemoteDataSourceImpl(
         // Create sample status updates
         val status1 = StatusUpdateResponse(
             id = 1001,
-            petId = 1,
+            petId = "",
             userId = 1,
             userName = "Pet Owner",
             content = "Max is adapting so well to his new home! He loves his new bed.",
@@ -197,7 +201,7 @@ class StatusRemoteDataSourceImpl(
         
         val status2 = StatusUpdateResponse(
             id = 1002,
-            petId = 1,
+            petId = "",
             userId = 1,
             userName = "Pet Owner",
             content = "First visit to the park today. Max made some new friends!",

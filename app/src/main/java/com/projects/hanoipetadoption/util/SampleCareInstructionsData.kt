@@ -10,7 +10,7 @@ import java.util.*
  */
 object SampleCareInstructionsData {
     
-    fun getCareInstructionsForPet(petId: Int): List<CareInstructions> {
+    fun getCareInstructionsForPet(petId: String): List<CareInstructions> {
         val baseDate = Calendar.getInstance().apply {
             add(Calendar.DAY_OF_MONTH, -30) // Sample data from a month ago
         }.time
@@ -94,9 +94,9 @@ object SampleCareInstructionsData {
         val allInstructions = mutableListOf<CareInstructions>()
         
         // Add instructions for multiple pets
-        for (petId in 1..5) {
-            allInstructions.addAll(getCareInstructionsForPet(petId))
-        }
+//        for (petId in 1..5) {
+//            allInstructions.addAll(getCareInstructionsForPet(petId))
+//        }
         
         return allInstructions
     }

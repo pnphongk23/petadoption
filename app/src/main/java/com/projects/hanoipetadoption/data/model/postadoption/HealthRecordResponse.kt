@@ -9,7 +9,7 @@ import java.util.Date
 data class HealthRecordResponse(
     val id: Int,
     @SerializedName("pet_id")
-    val petId: Int,
+    val petId: String,
     @SerializedName("user_id")
     val userId: Int,
     @SerializedName("record_type")
@@ -51,7 +51,7 @@ data class HealthRecordMediaResponse(
  */
 data class VaccinationReminderCreate(
     @SerializedName("pet_id")
-    val petId: Int,
+    val petId: String,
     val name: String,
     val notes: String?,
     @SerializedName("reminder_date")

@@ -24,7 +24,7 @@ interface StatusLocalDataSource {
      * @return List of status updates
      */
     suspend fun getStatusUpdatesForPet(
-        petId: Int,
+        petId: String,
         page: Int = 0,
         pageSize: Int = 20
     ): List<StatusUpdate>
@@ -34,7 +34,7 @@ interface StatusLocalDataSource {
      * @param petId The ID of the pet
      * @return List of cached status updates
      */
-    suspend fun getCachedPetStatusUpdates(petId: Int): List<StatusUpdate>
+    suspend fun getCachedPetStatusUpdates(petId: String): List<StatusUpdate>
     
     /**
      * Get a status update by ID from local storage

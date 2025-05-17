@@ -45,7 +45,7 @@ class StatusLocalDataSourceImpl(
     }
     
     override suspend fun getStatusUpdatesForPet(
-        petId: Int,
+        petId: String,
         page: Int,
         pageSize: Int
     ): List<StatusUpdate> {
@@ -313,7 +313,7 @@ class StatusLocalDataSourceImpl(
     /**
      * Get cached status updates for a pet from in-memory cache
      */
-    override suspend fun getCachedPetStatusUpdates(petId: Int): List<StatusUpdate> {
+    override suspend fun getCachedPetStatusUpdates(petId: String): List<StatusUpdate> {
         // Return from in-memory cache (temporary)
         return statusUpdatesCache.values
             .filter { it.petId == petId }

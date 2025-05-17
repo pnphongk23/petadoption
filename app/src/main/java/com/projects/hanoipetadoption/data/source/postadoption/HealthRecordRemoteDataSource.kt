@@ -29,7 +29,7 @@ interface HealthRecordRemoteDataSource {
      * @return List of health record responses
      */
     suspend fun getHealthRecordsForPet(
-        petId: Int,
+        petId: String,
         recordType: String? = null,
         startDate: String? = null,
         endDate: String? = null

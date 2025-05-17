@@ -49,7 +49,9 @@ import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import com.projects.hanoipetadoption.data.model.postadoption.PetStatusUpdate
 import java.io.File
+import java.io.FileOutputStream
 import java.util.Date
+import java.util.UUID
 
 /**
  * Dialog for adding a new pet status update
@@ -57,7 +59,7 @@ import java.util.Date
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddStatusUpdateDialog(
-    petId: Int,
+    petId: String,
     onDismiss: () -> Unit,
     onAddStatus: (PetStatusUpdate, List<File>) -> Unit
 ) {
@@ -218,15 +220,27 @@ fun AddStatusUpdateDialog(
                                 petId = petId,
                                 description = content,
                                 createdAt = Date(),
-                                imageUrls = null, // Will be set after image upload
+                                imageUrls = null, // Will be set by the ViewModel after files are processed
                                 milestone = if (isMilestone && milestone.isNotEmpty()) milestone else null
                             )
                             
-                            // Convert URIs to File objects for upload
+                            // Convert URIs to File objects
                             val imageFiles = selectedImages.mapNotNull { uri ->
-                                // In a real app, you would convert URI to a File here
-                                // For this example, we'll just return null
-                                null
+                                try {
+                                    context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                                        // Create a temporary file in the app's cache directory
+                                        val extension = context.contentResolver.getType(uri)?.substringAfterLast('/') ?: "tmp"
+                                        val tempFile = File(context.cacheDir, "upload_${UUID.randomUUID()}.$extension")
+                                        FileOutputStream(tempFile).use { outputStream ->
+                                            inputStream.copyTo(outputStream)
+                                        }
+                                        tempFile // Return the File object
+                                    }
+                                } catch (e: Exception) {
+                                    // Log error or notify user
+                                    e.printStackTrace() 
+                                    null // Return null if conversion fails for this URI
+                                }
                             }
                             
                             onAddStatus(statusUpdate, imageFiles)

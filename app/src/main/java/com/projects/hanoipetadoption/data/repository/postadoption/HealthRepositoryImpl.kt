@@ -23,7 +23,7 @@ class HealthRepositoryImpl(
 ) : HealthRepository {
     
     override suspend fun getHealthRecordsForPet(
-        petId: Int,
+        petId: String,
         recordType: RecordType?,
         startDate: Date?,
         endDate: Date?

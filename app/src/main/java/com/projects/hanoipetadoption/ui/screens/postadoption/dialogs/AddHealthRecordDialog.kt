@@ -44,7 +44,7 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddHealthRecordDialog(
-    petId: Int,
+    petId: String,
     onDismiss: () -> Unit,
     onAddRecord: (HealthRecordCreate) -> Unit
 ) {
@@ -181,13 +181,14 @@ fun AddHealthRecordDialog(
                     Button(
                         onClick = {
                             // Create health record
-                            val recordDate = datePickerState.selectedDateMillis?.let { Date(it) } ?: Date()
+                            val recordDateValue = datePickerState.selectedDateMillis?.let { Date(it) } ?: Date()
                             val weightValue = weight.toFloatOrNull()
                               val healthRecord = HealthRecordCreate(
                                 petId = petId,
                                 recordType = selectedRecordType,
                                 notes = notes.ifEmpty { null },
-                                weight = weightValue?.toDouble()
+                                weight = weightValue?.toDouble(),
+                                recordDate = recordDateValue
                             )
                             
                             onAddRecord(healthRecord)

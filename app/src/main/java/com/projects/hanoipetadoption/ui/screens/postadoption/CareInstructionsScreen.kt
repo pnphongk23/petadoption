@@ -55,7 +55,7 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CareInstructionsScreen(
-    petId: Int,
+    petId: String,
     viewModel: CareInstructionsViewModel = koinViewModel()
 ) {
     val careInstructionsState by viewModel.careInstructionsState.asFlow().collectAsState(initial = CareInstructionsState.Loading)

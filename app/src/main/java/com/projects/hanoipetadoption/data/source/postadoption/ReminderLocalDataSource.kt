@@ -21,7 +21,7 @@ interface ReminderLocalDataSource {
      * @return List of reminder records
      */
     suspend fun getRemindersForPet(
-        petId: Int,
+        petId: String,
         status: String? = null
     ): List<HealthRecord>
     

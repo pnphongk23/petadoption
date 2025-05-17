@@ -33,7 +33,7 @@ class PetStatusViewModel(
     /**
      * Load status updates for a pet
      */
-    fun loadStatusUpdates(petId: Int) {
+    fun loadStatusUpdates(petId: String) {
         _petStatusState.value = PetStatusState.Loading
         viewModelScope.launch {
             getPetStatusUpdatesUseCase(petId)

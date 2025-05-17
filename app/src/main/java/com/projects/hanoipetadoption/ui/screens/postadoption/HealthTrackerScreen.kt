@@ -58,8 +58,8 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HealthTrackerScreen(
-    petId: Int,
-    onAddRecordClick: (Int) -> Unit,
+    petId: String,
+    onAddRecordClick: (String) -> Unit,
     viewModel: HealthTrackerViewModel = koinViewModel()
 ) {
     val healthRecordsState by viewModel.healthRecordsState.asFlow().collectAsState(initial = HealthRecordsState.Loading)

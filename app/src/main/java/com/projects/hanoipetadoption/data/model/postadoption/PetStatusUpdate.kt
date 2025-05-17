@@ -7,7 +7,7 @@ import java.util.Date
  */
 data class PetStatusUpdate(
     val id: Int? = null,
-    val petId: Int,
+    val petId: String,
     val userId: Int? = null,
     val description: String,
     val imageUrls: List<String>? = null,

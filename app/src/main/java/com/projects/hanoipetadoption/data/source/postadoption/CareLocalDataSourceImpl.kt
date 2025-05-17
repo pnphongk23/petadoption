@@ -25,9 +25,9 @@ class CareLocalDataSourceImpl(
 ) : CareLocalDataSource {
     
     // In-memory cache of care instructions
-    private val careInstructionsCache = mutableMapOf<Int, List<CareInstructions>>()
+    private val careInstructionsCache = mutableMapOf<String, List<CareInstructions>>()
     
-    override suspend fun getCareInstructionsForPet(petId: Int): List<CareInstructions> {
+    override suspend fun getCareInstructionsForPet(petId: String): List<CareInstructions> {
         // In a real implementation, this would fetch from Room database
         // For now, return from the cache or empty list if not found
         return careInstructionsCache[petId] ?: emptyList()
@@ -53,7 +53,7 @@ class CareLocalDataSourceImpl(
      * Get cached care instructions for a specific pet
      * This is a special method used by the repository for fallback
      */
-    suspend fun getCachedCareInstructionsForPet(petId: Int): List<CareInstructions> {
+    suspend fun getCachedCareInstructionsForPet(petId: String): List<CareInstructions> {
         return getCareInstructionsForPet(petId)
     }
       /**

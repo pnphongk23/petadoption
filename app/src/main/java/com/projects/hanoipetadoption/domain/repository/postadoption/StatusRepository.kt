@@ -13,7 +13,7 @@ interface StatusRepository {
      * @param petId ID of the pet
      * @return List of status updates
      */
-    suspend fun getPetStatusUpdates(petId: Int): Result<List<PetStatusUpdate>>
+    suspend fun getPetStatusUpdates(petId: String): Result<List<PetStatusUpdate>>
 
     /**
      * Add a new status update

@@ -29,7 +29,7 @@ interface PostAdoptionApiService {
     
     @GET("api/health-records/pet/{petId}")
     suspend fun getHealthRecordsForPet(
-        @Path("petId") petId: Int,
+        @Path("petId") petId: String,
         @Query("skip") skip: Int = 0,
         @Query("limit") limit: Int = 100,
         @Query("record_type") recordType: String? = null,
@@ -81,7 +81,7 @@ interface PostAdoptionApiService {
     // Care instructions endpoints
     @GET("api/care-instructions/pet/{petId}")
     suspend fun getCareInstructionsForPet(
-        @Path("petId") petId: Int
+        @Path("petId") petId: String
     ): List<Map<String, Any>>
     
     @GET("api/care-instructions/{instructionId}")

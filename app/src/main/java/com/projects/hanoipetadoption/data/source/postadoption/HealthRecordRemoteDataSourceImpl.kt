@@ -32,7 +32,7 @@ class HealthRecordRemoteDataSourceImpl(
     }
     
     override suspend fun getHealthRecordsForPet(
-        petId: Int,
+        petId: String,
         recordType: String?,
         startDate: String?,
         endDate: String?

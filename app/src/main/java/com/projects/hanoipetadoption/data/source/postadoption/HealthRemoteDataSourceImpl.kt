@@ -22,7 +22,7 @@ class HealthRemoteDataSourceImpl(
 ) : HealthRemoteDataSource {
     
     override suspend fun getHealthRecordsForPet(
-        petId: Int, 
+        petId: String, 
         recordType: RecordType?, 
         startDate: Date?, 
         endDate: Date?
@@ -55,7 +55,7 @@ class HealthRemoteDataSourceImpl(
         // Mock implementation
         return HealthRecord(
             id = recordId,
-            petId = 1,
+            petId = "",
             recordType = update.recordType,
             notes = update.notes,
             weight = update.weight,

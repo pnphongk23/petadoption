@@ -149,8 +149,8 @@ fun PetAdoptionApp() {
             composable(
                 route = "adopted_pet_hub/{petId}",
             ) { backStackEntry ->
-                val petId = backStackEntry.arguments?.getString("petId")?.toIntOrNull() ?: -1
-                if (petId != -1) {
+                val petId = backStackEntry.arguments?.getString("petId")
+                if (!petId.isNullOrBlank()) {
                     AdoptedPetHubScreen(navController, petId)
                 }
             }

@@ -69,8 +69,8 @@ import java.util.concurrent.TimeUnit
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReminderScreen(
-    petId: Int?,
-    onAddReminderClick: (Int?) -> Unit,
+    petId: String?,
+    onAddReminderClick: (String?) -> Unit,
     viewModel: ReminderViewModel = koinViewModel()
 ) {
     val upcomingRemindersState by viewModel.upcomingRemindersState.asFlow().collectAsState(initial = ReminderState.Loading)
@@ -128,7 +128,7 @@ fun ReminderScreen(
             ) {
                 when {
                     // Show pet-specific reminders if tab 0 is selected and we have a pet ID
-                    selectedTabIndex == 0 && petId != null && petRemindersState != null -> {
+                    selectedTabIndex == 0 && petId != null -> {
                         when (val state = petRemindersState) {
                             is ReminderState.Loading -> {
                                 CircularProgressIndicator(

@@ -60,8 +60,8 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PetStatusScreen(
-    petId: Int,
-    onAddStatusClick: (Int) -> Unit,
+    petId: String,
+    onAddStatusClick: (String) -> Unit,
     viewModel: PetStatusViewModel = koinViewModel()
 ) {
     val petStatusState by viewModel.petStatusState.asFlow().collectAsState(PetStatusState.Loading)

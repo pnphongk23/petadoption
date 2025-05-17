@@ -30,11 +30,11 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun PostAdoptionFeaturesSection(
-    petId: Int,
-    onHealthTrackerClick: (Int) -> Unit,
-    onRemindersClick: (Int) -> Unit,
-    onCareInstructionsClick: (Int) -> Unit,
-    onPetStatusClick: (Int) -> Unit,
+    petId: String,
+    onHealthTrackerClick: (String) -> Unit,
+    onRemindersClick: (String) -> Unit,
+    onCareInstructionsClick: (String) -> Unit,
+    onPetStatusClick: (String) -> Unit,
 ) {
     Column(
         modifier = Modifier

@@ -10,7 +10,7 @@ class GetRemindersForPetUseCase(private val repository: ReminderRepository) {
     /**
      * Execute the use case
      */
-    suspend operator fun invoke(petId: Int): Result<List<Reminder>> {
+    suspend operator fun invoke(petId: String): Result<List<Reminder>> {
         return repository.getRemindersForPet(petId)
     }
 }

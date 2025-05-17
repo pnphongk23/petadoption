@@ -44,7 +44,7 @@ class HealthTrackerViewModel(
      * Load health records for a pet
      */
     fun loadHealthRecords(
-        petId: Int,
+        petId: String,
         recordType: RecordType? = null,
         startDate: Date? = null,
         endDate: Date? = null
@@ -72,12 +72,12 @@ class HealthTrackerViewModel(
         viewModelScope.launch {
             createHealthRecordUseCase(healthRecord)
                 .fold(
-                    onSuccess = { record ->
+                    onSuccess = {
                         // Reload records after creating a new one
                         loadHealthRecords(healthRecord.petId)
                         onComplete(true)
                     },
-                    onFailure = { error ->
+                    onFailure = {
                         onComplete(false)
                     }
                 )

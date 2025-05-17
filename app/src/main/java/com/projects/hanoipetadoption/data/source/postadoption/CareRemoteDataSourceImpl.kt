@@ -12,7 +12,7 @@ import java.util.Date
  */
 class CareRemoteDataSourceImpl(
     private val apiService: PostAdoptionApiService
-) : CareRemoteDataSource {    override suspend fun getCareInstructionsForPet(petId: Int): List<CareInstructions> {
+) : CareRemoteDataSource {    override suspend fun getCareInstructionsForPet(petId: String): List<CareInstructions> {
         try {
             // For development and testing, use sample data
             // In production, would use:
@@ -46,7 +46,7 @@ class CareRemoteDataSourceImpl(
     private fun mapToCareInstructions(data: Map<String, Any>): CareInstructions {
         return CareInstructions(
             id = (data["id"] as Double).toInt(),
-            petId = (data["pet_id"] as Double).toInt(),
+            petId = (data["pet_id"] as String),
             title = data["title"] as String,
             description = data["description"] as String,
             category = parseCategory(data["category"] as String),

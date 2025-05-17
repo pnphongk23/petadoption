@@ -8,7 +8,7 @@ import java.util.Date
  */
 data class StatusUpdate(
     val id: Int? = null,
-    val petId: Int,
+    val petId: String,
     val userId: Int? = null,
     val content: String,
     val updateDate: Date = Date(),
@@ -45,7 +45,7 @@ data class Comment(
 data class StatusUpdateResponse(
     val id: Int,
     @SerializedName("pet_id")
-    val petId: Int,
+    val petId: String,
     @SerializedName("user_id")
     val userId: Int,
     @SerializedName("user_name")
@@ -118,7 +118,7 @@ data class CommentResponse(
  */
 data class StatusUpdateCreate(
     @SerializedName("pet_id")
-    val petId: Int,
+    val petId: String,
     val content: String
 )
 

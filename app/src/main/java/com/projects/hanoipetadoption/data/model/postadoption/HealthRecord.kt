@@ -21,7 +21,7 @@ enum class MediaType {
  */
 data class HealthRecord(
     val id: Int? = null,
-    val petId: Int,
+    val petId: String,
     val userId: Int? = null,
     val recordType: RecordType,
     val notes: String? = null,
@@ -46,10 +46,11 @@ data class HealthRecordMedia(
  * Data class for creating a health record
  */
 data class HealthRecordCreate(
-    val petId: Int,
+    val petId: String,
     val recordType: RecordType,
     val notes: String? = null,
     val weight: Double? = null,
+    val recordDate: Date,
     val nextReminderDate: Date? = null
 )
 

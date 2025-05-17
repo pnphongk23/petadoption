@@ -40,7 +40,7 @@ class ReminderViewModel(
     /**
      * Load reminders for a pet
      */
-    fun loadRemindersForPet(petId: Int) {
+    fun loadRemindersForPet(petId: String) {
         _remindersState.value = ReminderState.Loading
         viewModelScope.launch {
             getRemindersForPetUseCase(petId)

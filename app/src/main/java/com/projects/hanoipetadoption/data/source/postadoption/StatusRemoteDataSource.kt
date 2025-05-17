@@ -22,7 +22,7 @@ interface StatusRemoteDataSource {
      * @return Paginated list of status updates
      */
     suspend fun getPetStatusUpdates(
-        petId: Int,
+        petId: String,
         page: Int = 0,
         pageSize: Int = 20
     ): StatusUpdateListResponse

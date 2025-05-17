@@ -12,7 +12,7 @@ import org.koin.dsl.module
 val viewModelsModule = module {
     // ViewModels
     viewModel { MyAdoptedPetsViewModel(get()) }
-    viewModel { AdoptedPetHubViewModel() }
+    viewModel { AdoptedPetHubViewModel(get(), get(), get(), get()) }
     viewModel { HealthTrackerViewModel(get(), get(), get()) }
     viewModel { ReminderViewModel(get(), get(), get(), get()) }
     viewModel { CareInstructionsViewModel(get(), get()) }

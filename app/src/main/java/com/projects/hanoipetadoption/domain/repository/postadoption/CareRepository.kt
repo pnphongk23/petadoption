@@ -14,7 +14,7 @@ interface CareRepository {
      * @param petId ID of the pet
      * @return List of care instructions
      */
-    suspend fun getCareInstructionsForPet(petId: Int): Result<List<CareInstructions>>
+    suspend fun getCareInstructionsForPet(petId: String): Result<List<CareInstructions>>
 
     /**
      * Get care instruction by ID

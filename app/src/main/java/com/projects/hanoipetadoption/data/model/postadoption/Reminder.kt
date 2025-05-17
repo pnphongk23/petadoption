@@ -14,7 +14,7 @@ enum class ReminderType {
  */
 data class Reminder(
     val id: Int? = null,
-    val petId: Int,
+    val petId: String,
     val title: String,
     val description: String? = null,
     val dueDate: Date,

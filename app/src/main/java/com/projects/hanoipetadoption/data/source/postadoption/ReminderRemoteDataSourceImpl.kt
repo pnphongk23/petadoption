@@ -20,7 +20,7 @@ class ReminderRemoteDataSourceImpl(
     }
     
     override suspend fun getRemindersForPet(
-        petId: Int,
+        petId: String,
         status: String?,
         startDate: String?,
         endDate: String?

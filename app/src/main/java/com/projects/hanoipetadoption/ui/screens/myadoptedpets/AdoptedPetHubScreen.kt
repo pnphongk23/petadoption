@@ -23,6 +23,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,11 +32,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavController
 import com.projects.hanoipetadoption.R
-import com.projects.hanoipetadoption.ui.model.Pet
 import com.projects.hanoipetadoption.ui.screens.postadoption.CareInstructionsScreen
 import com.projects.hanoipetadoption.ui.screens.postadoption.HealthTrackerScreen
 import com.projects.hanoipetadoption.ui.screens.postadoption.PetStatusScreen
 import com.projects.hanoipetadoption.ui.screens.postadoption.ReminderScreen
+import com.projects.hanoipetadoption.ui.screens.postadoption.dialogs.AddHealthRecordDialog
+import com.projects.hanoipetadoption.ui.screens.postadoption.dialogs.AddReminderDialog
+import com.projects.hanoipetadoption.ui.screens.postadoption.dialogs.AddStatusUpdateDialog
 import com.projects.hanoipetadoption.ui.viewmodel.myadoptedpets.AdoptedPetHubViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -56,11 +59,15 @@ enum class AdoptedPetHubTab(val title: String) {
 @Composable
 fun AdoptedPetHubScreen(
     navController: NavController,
-    petId: Int,
+    petId: String,
     viewModel: AdoptedPetHubViewModel = koinViewModel()
 ) {
     var selectedTab by remember { mutableStateOf(AdoptedPetHubTab.STATUS) }
     var petName by remember { mutableStateOf("Thú cưng") }
+
+    var showAddStatusDialog by remember { mutableStateOf(false) }
+    var showAddReminderDialog by remember { mutableStateOf(false) }
+    var showAddHealthRecordDialog by remember { mutableStateOf(false) }
 
     // Fetch pet details when screen is created
     LaunchedEffect(petId) {
@@ -68,16 +75,14 @@ fun AdoptedPetHubScreen(
     }
 
     // Observe pet details changes
-    viewModel.petDetails?.let { pet ->
-        petName = pet.name
-    }
+    val pet = viewModel.petDetails.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = petName,
+                        text = pet.value?.name ?: "",
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -138,18 +143,54 @@ fun AdoptedPetHubScreen(
             when (selectedTab) {
                 AdoptedPetHubTab.STATUS -> PetStatusScreen(
                     petId = petId,
-                    onAddStatusClick = { /* Handle adding status update */ }
+                    onAddStatusClick = {
+                        showAddStatusDialog = true
+                    }
                 )
                 AdoptedPetHubTab.HEALTH -> HealthTrackerScreen(
                     petId = petId,
-                    onAddRecordClick = { /* Handle adding health record */ }
+                    onAddRecordClick = { showAddHealthRecordDialog = true }
                 )
                 AdoptedPetHubTab.REMINDERS -> ReminderScreen(
                     petId = petId,
-                    onAddReminderClick = { /* Handle adding reminder */ }
+                    onAddReminderClick = { showAddReminderDialog = true }
                 )
                 AdoptedPetHubTab.CARE -> CareInstructionsScreen(petId = petId)
             }
+        }
+
+        // --- Dialogs ---
+        if (showAddStatusDialog) {
+            AddStatusUpdateDialog(
+                petId = petId,
+                onDismiss = { showAddStatusDialog = false },
+                onAddStatus = { statusUpdateData, imageFiles ->
+                    viewModel.addPetStatusUpdate(petId, statusUpdateData, imageFiles)
+                    showAddStatusDialog = false
+                }
+            )
+        }
+
+        if (showAddReminderDialog) {
+            AddReminderDialog(
+                petId = petId,
+                onDismiss = { showAddReminderDialog = false },
+                onAddReminder = { reminderData ->
+                    viewModel.addReminder(reminderData)
+                    showAddReminderDialog = false
+                }
+            )
+        }
+
+        if (showAddHealthRecordDialog) {
+            AddHealthRecordDialog(
+                petId = petId,
+                onDismiss = { showAddHealthRecordDialog = false },
+                onAddRecord = { healthRecordData ->
+                    viewModel.addHealthRecord(healthRecordData)
+                    showAddHealthRecordDialog = false
+                }
+            )
         }
     }
 } 

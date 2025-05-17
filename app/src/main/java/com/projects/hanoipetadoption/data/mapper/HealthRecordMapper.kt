@@ -51,7 +51,8 @@ fun HealthRecord.toHealthRecordCreate(): HealthRecordCreate {
         recordType = recordType,
         notes = notes,
         weight = weight,
-        nextReminderDate = nextReminderDate
+        nextReminderDate = nextReminderDate,
+        recordDate = recordDate
     )
 }
 

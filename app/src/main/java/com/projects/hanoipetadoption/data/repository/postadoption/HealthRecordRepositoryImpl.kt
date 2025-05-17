@@ -39,7 +39,7 @@ class HealthRecordRepositoryImpl(
     }
     
     override suspend fun getHealthRecordsForPet(
-        petId: Int,
+        petId: String,
         recordType: RecordType?,
         startDate: Date?,
         endDate: Date?
@@ -132,7 +132,7 @@ class HealthRecordRepositoryImpl(
     }
     
     override suspend fun createVaccinationReminder(
-        petId: Int,
+        petId: String,
         name: String,
         notes: String?,
         reminderDate: Date,

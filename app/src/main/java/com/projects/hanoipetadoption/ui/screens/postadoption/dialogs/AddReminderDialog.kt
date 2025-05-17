@@ -48,7 +48,7 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddReminderDialog(
-    petId: Int?,
+    petId: String?,
     onDismiss: () -> Unit,
     onAddReminder: (VaccinationReminderCreate) -> Unit
 ) {
@@ -242,7 +242,7 @@ fun AddReminderDialog(
                                 date.time
                             } ?: Date()
                               val vaccinationReminder = VaccinationReminderCreate(
-                                petId = petId ?: 0,
+                                petId = petId ?: "",
                                 name = title,
                                 notes = description.ifEmpty { null },
                                 reminderDate = reminderDate.toString(),

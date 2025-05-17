@@ -10,7 +10,7 @@ class GetCareInstructionsUseCase(private val repository: CareRepository) {
     /**
      * Execute the use case
      */
-    suspend operator fun invoke(petId: Int): Result<List<CareInstructions>> {
+    suspend operator fun invoke(petId: String): Result<List<CareInstructions>> {
         return repository.getCareInstructionsForPet(petId)
     }
 }

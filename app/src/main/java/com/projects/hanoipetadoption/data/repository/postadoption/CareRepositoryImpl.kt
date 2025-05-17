@@ -15,7 +15,7 @@ import kotlinx.coroutines.withContext
 class CareRepositoryImpl(
     private val remoteDataSource: CareRemoteDataSource,
     private val localDataSource: CareLocalDataSource
-) : CareRepository {    override suspend fun getCareInstructionsForPet(petId: Int): Result<List<CareInstructions>> = 
+) : CareRepository {    override suspend fun getCareInstructionsForPet(petId: String): Result<List<CareInstructions>> = 
         withContext(Dispatchers.IO) {
             return@withContext try {
                 val instructions = remoteDataSource.getCareInstructionsForPet(petId)

@@ -28,7 +28,7 @@ interface HealthRecordRepository {
      * @return Result containing the list of health records or an error
      */
     suspend fun getHealthRecordsForPet(
-        petId: Int,
+        petId: String,
         recordType: RecordType? = null,
         startDate: Date? = null,
         endDate: Date? = null
@@ -102,7 +102,7 @@ interface HealthRecordRepository {
      * @return Result containing the created reminder or an error
      */
     suspend fun createVaccinationReminder(
-        petId: Int,
+        petId: String,
         name: String,
         notes: String?,
         reminderDate: Date,

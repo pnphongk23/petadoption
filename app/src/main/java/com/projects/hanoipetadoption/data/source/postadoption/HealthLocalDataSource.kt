@@ -21,7 +21,7 @@ interface HealthLocalDataSource {
      * @return List of health records
      */
     suspend fun getHealthRecordsForPet(
-        petId: Int,
+        petId: String,
         recordType: String? = null
     ): List<HealthRecord>
     

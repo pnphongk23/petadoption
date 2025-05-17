@@ -10,7 +10,7 @@ class GetPetStatusUpdatesUseCase(private val repository: StatusRepository) {
     /**
      * Execute the use case
      */
-    suspend operator fun invoke(petId: Int): Result<List<PetStatusUpdate>> {
+    suspend operator fun invoke(petId: String): Result<List<PetStatusUpdate>> {
         return repository.getPetStatusUpdates(petId)
     }
 }

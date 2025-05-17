@@ -12,7 +12,7 @@ interface CareLocalDataSource {
      * @param petId ID of the pet
      * @return List of care instructions
      */
-    suspend fun getCareInstructionsForPet(petId: Int): List<CareInstructions>
+    suspend fun getCareInstructionsForPet(petId: String): List<CareInstructions>
     
     /**
      * Get care instruction by ID from local storage

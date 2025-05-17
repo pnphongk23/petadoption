@@ -18,7 +18,7 @@ interface ReminderRemoteDataSource {
      * @return List of health record responses that are reminders
      */
     suspend fun getRemindersForPet(
-        petId: Int,
+        petId: String,
         status: String? = null,
         startDate: String? = null,
         endDate: String? = null

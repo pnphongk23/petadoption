@@ -40,7 +40,7 @@ class ReminderRepositoryImpl(
             }
         }
 
-    override suspend fun getRemindersForPet(petId: Int): Result<List<Reminder>> =
+    override suspend fun getRemindersForPet(petId: String): Result<List<Reminder>> =
         withContext(Dispatchers.IO) {
             return@withContext try {
                 val healthRecords = remoteDataSource.getRemindersForPet(petId).map { it.toHealthRecord() }

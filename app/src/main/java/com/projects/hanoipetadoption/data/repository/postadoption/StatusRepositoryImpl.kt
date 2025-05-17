@@ -19,7 +19,7 @@ import kotlinx.coroutines.withContext
 class StatusRepositoryImpl(
     private val remoteDataSource: StatusRemoteDataSource,
     private val localDataSource: StatusLocalDataSource
-) : StatusRepository {    override suspend fun getPetStatusUpdates(petId: Int): Result<List<PetStatusUpdate>> =
+) : StatusRepository {    override suspend fun getPetStatusUpdates(petId: String): Result<List<PetStatusUpdate>> =
         withContext(Dispatchers.IO) {
             return@withContext try {
                 // Get updates from remote source and convert them to PetStatusUpdate format

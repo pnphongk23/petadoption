@@ -7,7 +7,7 @@ import java.util.Date
  */
 data class CareInstructions(
     val id: Int,
-    val petId: Int,
+    val petId: String,
     val title: String,
     val description: String,
     val category: CareCategory,
