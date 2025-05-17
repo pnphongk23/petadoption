@@ -28,11 +28,11 @@ class StatusRemoteDataSourceImpl(
 ) : StatusRemoteDataSource {
     
     // Sample data for development and testing
-    private val sampleStatusUpdates = mutableMapOf<Int, StatusUpdateResponse>()
-    private val sampleStatusMedia = mutableMapOf<Int, MutableList<StatusMediaResponse>>()
-    private val sampleComments = mutableMapOf<Int, MutableList<CommentResponse>>()
-    private var lastStatusId = 1000
-    private var lastMediaId = 2000
+    private val sampleStatusUpdates = mutableMapOf<Long, StatusUpdateResponse>()
+    private val sampleStatusMedia = mutableMapOf<Long, MutableList<StatusMediaResponse>>()
+    private val sampleComments = mutableMapOf<Long, MutableList<CommentResponse>>()
+    private var lastStatusId = 1000L
+    private var lastMediaId = 2000L
     private var lastCommentId = 3000
     
     init {
@@ -102,7 +102,7 @@ class StatusRemoteDataSourceImpl(
     
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun addMediaToStatusUpdate(
-        updateId: Int,
+        updateId: Long,
         file: File,
         mediaType: String
     ): StatusMediaResponse {
@@ -128,26 +128,26 @@ class StatusRemoteDataSourceImpl(
         return newMedia
     }
     
-    override suspend fun getMediaForStatusUpdate(updateId: Int): List<StatusMediaResponse> {
+    override suspend fun getMediaForStatusUpdate(updateId: Long): List<StatusMediaResponse> {
         // In a real implementation, this would call the API
         return sampleStatusMedia[updateId] ?: emptyList()
     }
     
-    override suspend fun deleteStatusUpdate(updateId: Int) {
+    override suspend fun deleteStatusUpdate(updateId: Long) {
         // In a real implementation, this would call the API
         sampleStatusUpdates.remove(updateId)
         sampleStatusMedia.remove(updateId)
         sampleComments.remove(updateId)
     }
     
-    override suspend fun getStatusUpdateComments(updateId: Int): List<CommentResponse> {
+    override suspend fun getStatusUpdateComments(updateId: Long): List<CommentResponse> {
         // In a real implementation, this would call the API
         return sampleComments[updateId] ?: emptyList()
     }
     
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun addCommentToUpdate(
-        updateId: Int,
+        updateId: Long,
         comment: CommentCreate
     ): CommentResponse {
         // In a real implementation, this would call the API
@@ -269,6 +269,7 @@ class StatusRemoteDataSourceImpl(
     /**
      * Implementation of addStatusUpdate for PetStatusUpdate objects
      */
+    @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun addStatusUpdate(update: PetStatusUpdate, images: List<File>?): PetStatusUpdate {
         // Convert PetStatusUpdate to StatusUpdateCreate
         val statusUpdateCreate = StatusUpdateCreate(

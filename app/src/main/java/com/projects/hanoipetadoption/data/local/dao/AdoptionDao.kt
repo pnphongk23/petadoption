@@ -1,4 +1,4 @@
-package com.projects.hanoipetadoption.data.dao
+package com.projects.hanoipetadoption.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert

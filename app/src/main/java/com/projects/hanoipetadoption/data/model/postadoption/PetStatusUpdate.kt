@@ -3,10 +3,10 @@ package com.projects.hanoipetadoption.data.model.postadoption
 import java.util.Date
 
 /**
- * Data class for pet status update
+ * Data class for pet status update ( thống nhất model)
  */
 data class PetStatusUpdate(
-    val id: Int? = null,
+    val id: Long? = null,
     val petId: String,
     val userId: Int? = null,
     val description: String,

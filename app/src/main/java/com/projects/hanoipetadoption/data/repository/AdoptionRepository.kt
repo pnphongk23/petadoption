@@ -1,7 +1,6 @@
 package com.projects.hanoipetadoption.data.repository
 
-import com.projects.hanoipetadoption.data.dao.AdoptionDao
-import com.projects.hanoipetadoption.data.mapper.toDomain
+import com.projects.hanoipetadoption.data.local.dao.AdoptionDao
 import com.projects.hanoipetadoption.data.model.AdoptionEntity
 import com.projects.hanoipetadoption.domain.model.PetDomain
 import com.projects.hanoipetadoption.ui.model.AdoptionApplication

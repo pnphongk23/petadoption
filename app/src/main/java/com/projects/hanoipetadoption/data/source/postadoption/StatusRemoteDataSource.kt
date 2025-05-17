@@ -50,7 +50,7 @@ interface StatusRemoteDataSource {
      * @return The created media response
      */
     suspend fun addMediaToStatusUpdate(
-        updateId: Int,
+        updateId: Long,
         file: File,
         mediaType: String
     ): StatusMediaResponse
@@ -60,20 +60,20 @@ interface StatusRemoteDataSource {
      * @param updateId The ID of the status update
      * @return List of media items
      */
-    suspend fun getMediaForStatusUpdate(updateId: Int): List<StatusMediaResponse>
+    suspend fun getMediaForStatusUpdate(updateId: Long): List<StatusMediaResponse>
     
     /**
      * Delete a status update
      * @param updateId The ID of the status update to delete
      */
-    suspend fun deleteStatusUpdate(updateId: Int)
+    suspend fun deleteStatusUpdate(updateId: Long)
     
     /**
      * Get comments for a status update
      * @param updateId The ID of the status update
      * @return List of comments
      */
-    suspend fun getStatusUpdateComments(updateId: Int): List<CommentResponse>
+    suspend fun getStatusUpdateComments(updateId: Long): List<CommentResponse>
     
     /**
      * Add a comment to a status update
@@ -82,7 +82,7 @@ interface StatusRemoteDataSource {
      * @return The created comment
      */
     suspend fun addCommentToUpdate(
-        updateId: Int,
+        updateId: Long,
         comment: CommentCreate
     ): CommentResponse
     

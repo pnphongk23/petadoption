@@ -1,9 +1,9 @@
 package com.projects.hanoipetadoption.data.source
 
-import com.projects.hanoipetadoption.data.dao.PetAdoptionRequirementDao
-import com.projects.hanoipetadoption.data.dao.PetCharacteristicDao
-import com.projects.hanoipetadoption.data.dao.PetDao
-import com.projects.hanoipetadoption.data.dao.PetHealthStatusDao
+import com.projects.hanoipetadoption.data.local.dao.PetAdoptionRequirementDao
+import com.projects.hanoipetadoption.data.local.dao.PetCharacteristicDao
+import com.projects.hanoipetadoption.data.local.dao.PetDao
+import com.projects.hanoipetadoption.data.local.dao.PetHealthStatusDao
 import com.projects.hanoipetadoption.data.mapper.toCharacteristicEntities
 import com.projects.hanoipetadoption.data.mapper.toHealthStatusEntities
 import com.projects.hanoipetadoption.data.mapper.toPetData

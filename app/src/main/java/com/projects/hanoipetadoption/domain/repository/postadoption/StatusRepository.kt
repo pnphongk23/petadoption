@@ -30,5 +30,5 @@ interface StatusRepository {
      * @param updateId ID of the status update to delete
      * @return Whether the deletion was successful
      */
-    suspend fun deleteStatusUpdate(updateId: Int): Result<Boolean>
+    suspend fun deleteStatusUpdate(updateId: Long): Result<Boolean>
 }

@@ -1,10 +1,6 @@
 package com.projects.hanoipetadoption.data.repository.postadoption
 
-import com.projects.hanoipetadoption.data.mapper.toPetStatusUpdate
-import com.projects.hanoipetadoption.data.mapper.toPetStatusUpdateList
 import com.projects.hanoipetadoption.data.model.postadoption.PetStatusUpdate
-import com.projects.hanoipetadoption.data.model.postadoption.StatusMedia
-import com.projects.hanoipetadoption.data.model.postadoption.StatusUpdate
 import com.projects.hanoipetadoption.data.source.postadoption.StatusLocalDataSource
 import com.projects.hanoipetadoption.data.source.postadoption.StatusRemoteDataSource
 import com.projects.hanoipetadoption.domain.repository.postadoption.StatusRepository
@@ -19,76 +15,53 @@ import kotlinx.coroutines.withContext
 class StatusRepositoryImpl(
     private val remoteDataSource: StatusRemoteDataSource,
     private val localDataSource: StatusLocalDataSource
-) : StatusRepository {    override suspend fun getPetStatusUpdates(petId: String): Result<List<PetStatusUpdate>> =
+) : StatusRepository {
+    override suspend fun getPetStatusUpdates(petId: String): Result<List<PetStatusUpdate>> =
         withContext(Dispatchers.IO) {
-            return@withContext try {
-                // Get updates from remote source and convert them to PetStatusUpdate format
-                val updateResponse = remoteDataSource.getPetStatusUpdates(petId)
-                // Extract just the updates from the response
-                val updates = updateResponse.updates.map { response ->
-                    PetStatusUpdate(
-                        id = response.id,
-                        petId = response.petId,
-                        userId = response.userId,
-                        description = response.content,
-                        imageUrls = response.media?.filter { it.mediaType == "image" }?.map { it.filePath },
-                        createdAt = Date() // Using current date as the response date format might be different
-                    )
+            try {
+                // Fetch from local data source, page 1, effectively all items for this pet as a fallback
+                val cachedUpdates = localDataSource.getPetStatusUpdatesForPet(
+                    petId,
+                    page = 0,
+                    pageSize = Int.MAX_VALUE
+                )
+                if (cachedUpdates.isNotEmpty()) {
+                    // cachedUpdates is already List<PetStatusUpdate>
+                    Result.success(cachedUpdates)
+                } else {
+                    Result.success(emptyList())
                 }
-                // Save these updates to local cache
-                localDataSource.saveStatusUpdates(updates.map { petUpdate ->
-                    // Convert PetStatusUpdate back to StatusUpdate for local storage
-                    com.projects.hanoipetadoption.data.model.postadoption.StatusUpdate(
-                        id = petUpdate.id,
-                        petId = petUpdate.petId, 
-                        userId = petUpdate.userId,
-                        content = petUpdate.description,
-                        updateDate = petUpdate.createdAt,
-                        mediaItems = petUpdate.imageUrls?.map { url ->
-                            com.projects.hanoipetadoption.data.model.postadoption.StatusMedia(
-                                id = null,
-                                statusUpdateId = petUpdate.id,
-                                mediaType = "image",
-                                filePath = url,
-                                uploadDate = petUpdate.createdAt
-                            )
-                        } ?: emptyList(),
-                        comments = emptyList()
-                    )
-                })
-                Result.success(updates)
             } catch (e: Exception) {
-                try {
-                    val cachedUpdates = localDataSource.getCachedPetStatusUpdates(petId)
-                    if (cachedUpdates.isNotEmpty()) {
-                        // Convert StatusUpdate to PetStatusUpdate using mapper
-                        Result.success(cachedUpdates.toPetStatusUpdateList())
-                    } else {
-                        Result.failure(e)
-                    }
-                } catch (cacheException: Exception) {
-                    Result.failure(e)
-                }
+                Result.failure(e) // prefer original exception
             }
         }
+
+
 
     override suspend fun addStatusUpdate(
         update: PetStatusUpdate,
         images: List<File>?
     ): Result<PetStatusUpdate> = withContext(Dispatchers.IO) {
         return@withContext try {
-            val createdUpdate = remoteDataSource.addStatusUpdate(update, images)
-            Result.success(createdUpdate)
+            val createdUpdateResponse = remoteDataSource.addStatusUpdate(update, images)
+            // Assuming createdUpdateResponse is the successfully created PetStatusUpdate object from remote.
+            // Now save it to the local data source.
+            // The localDataSource.savePetStatusUpdate also handles file saving if imageFiles are provided and update.imageUrls needs to be populated.
+            // If createdUpdateResponse from remote already has final imageUrls, then imageFiles might not be needed for the local save,
+            // but it's safer to pass them if they were the source.
+            val locallySavedUpdate = localDataSource.savePetStatusUpdate(createdUpdateResponse, images)
+            Result.success(locallySavedUpdate)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    override suspend fun deleteStatusUpdate(updateId: Int): Result<Boolean> =
+    override suspend fun deleteStatusUpdate(updateId: Long): Result<Boolean> =
         withContext(Dispatchers.IO) {
             return@withContext try {
-                remoteDataSource.deleteStatusUpdate(updateId)
-                // Return success with true since the deletion was successful
+                remoteDataSource.deleteStatusUpdate(updateId) // Assuming this returns success/failure or throws
+                // If remote deletion is successful, delete from local data source as well
+                localDataSource.deletePetStatusUpdateById(updateId)
                 Result.success(true)
             } catch (e: Exception) {
                 Result.failure(e)

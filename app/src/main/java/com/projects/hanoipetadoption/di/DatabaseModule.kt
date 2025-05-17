@@ -1,7 +1,7 @@
 package com.projects.hanoipetadoption.di
 
 import androidx.room.Room
-import com.projects.hanoipetadoption.data.database.PetAdoptionDatabase
+import com.projects.hanoipetadoption.data.local.database.PetAdoptionDatabase
 import com.projects.hanoipetadoption.data.source.PetLocalDataSource
 import com.projects.hanoipetadoption.data.source.PetLocalDataSourceImpl
 import org.koin.android.ext.koin.androidApplication
@@ -23,7 +23,10 @@ val databaseModule = module {
     single { get<PetAdoptionDatabase>().petCharacteristicDao() }
     single { get<PetAdoptionDatabase>().petHealthStatusDao() }
     single { get<PetAdoptionDatabase>().petAdoptionRequirementDao() }
-    
+    single { get<PetAdoptionDatabase>().healthRecordDao() }
+    single { get<PetAdoptionDatabase>().petStatusUpdateDao() }
+    single { get<PetAdoptionDatabase>().reminderDao() }
+
     // Data Sources
     single<PetLocalDataSource> { 
         PetLocalDataSourceImpl(

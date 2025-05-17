@@ -1,189 +1,140 @@
 package com.projects.hanoipetadoption.data.source.postadoption
 
 import android.content.Context
+import com.projects.hanoipetadoption.data.local.dao.HealthRecordDao
+import com.projects.hanoipetadoption.data.mapper.toEntity
+import com.projects.hanoipetadoption.data.mapper.toModel
 import com.projects.hanoipetadoption.data.model.postadoption.HealthRecord
 import com.projects.hanoipetadoption.data.model.postadoption.HealthRecordMedia
 import com.projects.hanoipetadoption.data.model.postadoption.RecordType
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import java.io.File
-import java.util.Date
-import java.util.concurrent.TimeUnit
+import java.io.FileOutputStream
 
 /**
  * Implementation of HealthLocalDataSource that uses Room database and file system
  */
-class HealthLocalDataSourceImpl(
-    private val context: Context
+class HealthLocalDataSourceImpl constructor(
+    private val context: Context,
+    private val healthRecordDao: HealthRecordDao
 ) : HealthLocalDataSource {
     
-    // Cache directory for health record media files
     private val healthRecordMediaDir: File by lazy {
-        File(context.filesDir, "health_records").apply {
+        File(context.filesDir, "health_record_media").apply {
             if (!exists()) mkdirs()
         }
     }
     
-    // In-memory cache for health records (temporary until Room implementation)
-    private val healthRecordsCache = mutableMapOf<Int, HealthRecord>()
-    private val mediaCache = mutableMapOf<Int, MutableList<HealthRecordMedia>>()
-    
     override suspend fun saveHealthRecords(records: List<HealthRecord>) {
-        // Add to in-memory cache (temporary)
         records.forEach { record ->
-            record.id?.let { id ->
-                healthRecordsCache[id] = record
-                record.mediaItems.forEach { media ->
-                    if (!mediaCache.containsKey(id)) {
-                        mediaCache[id] = mutableListOf()
-                    }
-                    mediaCache[id]?.add(media)
-                }
-            }
+            saveHealthRecord(record)
         }
-        
-        // TODO: Implement Room database storage
-        // Example:
-        // healthRecordDao.insertAll(records.map { it.toHealthRecordEntity() })
     }
     
     override suspend fun getHealthRecordsForPet(
         petId: String,
         recordType: String?
     ): List<HealthRecord> {
-        // Return from in-memory cache (temporary)
-        return healthRecordsCache.values
-            .filter { it.petId == petId }
-            .filter { recordType == null || it.recordType.name == recordType }
-        
-        // TODO: Implement Room database query
-        // Example:
-        // return healthRecordDao.getHealthRecordsForPet(petId, recordType)
-        //     .map { it.toHealthRecord() }
+        val recordTypeEnum = recordType?.let { 
+            try { RecordType.valueOf(it.uppercase()) } catch (e: IllegalArgumentException) { null } 
+        }
+        val flow = if (recordTypeEnum != null) {
+            healthRecordDao.getHealthRecordsWithMediaForPetFilteredByType(petId, recordTypeEnum)
+        } else {
+            healthRecordDao.getHealthRecordsWithMediaForPet(petId)
+        }
+        return flow.map { list -> list.map { it.toModel() } }.firstOrNull() ?: emptyList()
     }
     
     override suspend fun getHealthRecord(recordId: Int): HealthRecord? {
-        // Return from in-memory cache (temporary)
-        return healthRecordsCache[recordId]
-        
-        // TODO: Implement Room database query
-        // Example:
-        // val entity = healthRecordDao.getHealthRecord(recordId)
-        // return entity?.toHealthRecord()
+        return healthRecordDao.getHealthRecordWithMediaById(recordId.toLong())?.toModel()
     }
     
     override suspend fun saveHealthRecord(record: HealthRecord) {
-        // Add to in-memory cache (temporary)
-        record.id?.let { id ->
-            healthRecordsCache[id] = record
-            
-            // Also update media cache
-            mediaCache[id] = record.mediaItems.toMutableList()
-        }
+        val entity = record.toEntity()
+        val savedEntityId = healthRecordDao.insertHealthRecord(entity)
         
-        // TODO: Implement Room database insertion
-        // Example:
-        // healthRecordDao.insert(record.toHealthRecordEntity())
+        val effectiveId = record.id?.toLong() ?: savedEntityId
+        
+        healthRecordDao.deleteAllMediaForRecord(effectiveId)
+        
+        if (record.mediaItems.isNotEmpty()) {
+            val mediaEntities = record.mediaItems.map {
+                it.toEntity(effectiveId)
+            }
+            healthRecordDao.insertAllHealthRecordMedia(mediaEntities)
+        }
     }
     
     override suspend fun deleteHealthRecord(recordId: Int) {
-        // Remove from in-memory cache (temporary)
-        healthRecordsCache.remove(recordId)
-        mediaCache.remove(recordId)
+        val idAsLong = recordId.toLong()
+        healthRecordDao.deleteHealthRecordById(idAsLong)
         
-        // Also delete media files
-        val mediaDir = File(healthRecordMediaDir, recordId.toString())
-        if (mediaDir.exists()) {
-            mediaDir.deleteRecursively()
+        val mediaDirForRecord = File(healthRecordMediaDir, idAsLong.toString())
+        if (mediaDirForRecord.exists()) {
+            mediaDirForRecord.deleteRecursively()
         }
-        
-        // TODO: Implement Room database deletion
-        // Example:
-        // healthRecordDao.deleteHealthRecord(recordId)
     }
     
     override suspend fun saveMediaForHealthRecord(
         recordId: Int,
         media: List<HealthRecordMedia>
     ) {
-        // Add to in-memory cache (temporary)
-        if (!mediaCache.containsKey(recordId)) {
-            mediaCache[recordId] = mutableListOf()
-        }
-        mediaCache[recordId]?.addAll(media)
-        
-        // Update the health record object too
-        healthRecordsCache[recordId]?.let { record ->
-            val updatedMediaList = record.mediaItems.toMutableList()
-            updatedMediaList.addAll(media)
-            healthRecordsCache[recordId] = record.copy(mediaItems = updatedMediaList)
+        val recordIdAsLong = recordId.toLong()
+        val recordSpecificMediaDir = File(healthRecordMediaDir, recordIdAsLong.toString()).apply {
+            if (!exists()) mkdirs()
         }
         
-        // TODO: Implement Room database insertion
-        // Example:
-        // healthRecordMediaDao.insertAll(media.map { it.toHealthRecordMediaEntity() })
+        val mediaEntitiesToSave = media.mapNotNull { mediaItem ->
+            try {
+                val sourceFile = File(mediaItem.filePath)
+                if (!sourceFile.exists()) {
+                    println("Source file does not exist: ${mediaItem.filePath}")
+                    return@mapNotNull null
+                }
+                val fileName = "media_${System.currentTimeMillis()}_${sourceFile.nameWithoutExtension}.${sourceFile.extension}"
+                val destinationFile = File(recordSpecificMediaDir, fileName)
+                
+                sourceFile.inputStream().use { input ->
+                    FileOutputStream(destinationFile).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                mediaItem.copy(filePath = destinationFile.absolutePath).toEntity(recordIdAsLong)
+            } catch (e: Exception) {
+                println("Error saving media file ${mediaItem.filePath}: ${e.message}")
+                null
+            }
+        }
+        if (mediaEntitiesToSave.isNotEmpty()) {
+            healthRecordDao.insertAllHealthRecordMedia(mediaEntitiesToSave)
+        }
     }
     
     override suspend fun getMediaForHealthRecord(recordId: Int): List<HealthRecordMedia> {
-        // Return from in-memory cache (temporary)
-        return mediaCache[recordId] ?: emptyList()
-        
-        // TODO: Implement Room database query
-        // Example:
-        // return healthRecordMediaDao.getMediaForHealthRecord(recordId)
-        //     .map { it.toHealthRecordMedia() }
+        return healthRecordDao.getMediaForHealthRecord(recordId.toLong()).map { it.toModel() }
     }
     
     override suspend fun deleteMediaFromHealthRecord(recordId: Int, mediaId: Int) {
-        // Remove from in-memory cache (temporary)
-        mediaCache[recordId]?.removeAll { it.id == mediaId }
+        val mediaEntity = healthRecordDao.getMediaForHealthRecord(recordId.toLong())
+            .find { it.id == mediaId.toLong() }
         
-        // Update the health record object too
-        healthRecordsCache[recordId]?.let { record ->
-            val updatedMediaList = record.mediaItems.filter { it.id != mediaId }
-            healthRecordsCache[recordId] = record.copy(mediaItems = updatedMediaList)
+        mediaEntity?.let {
+            val fileToDelete = File(it.filePath)
+            if (fileToDelete.exists()) {
+                fileToDelete.delete()
+            }
+            healthRecordDao.deleteMediaById(it.id)
         }
-        
-        // Also delete media file if it exists
-        val mediaFile = File(File(healthRecordMediaDir, recordId.toString()), "$mediaId.media")
-        if (mediaFile.exists()) {
-            mediaFile.delete()
-        }
-        
-        // TODO: Implement Room database deletion
-        // Example:
-        // healthRecordMediaDao.deleteMedia(mediaId)
     }
     
     override suspend fun getUpcomingReminders(daysAhead: Int): List<HealthRecord> {
-        val cutoffTime = Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(daysAhead.toLong()))
-        
-        // Filter from in-memory cache (temporary)
-        return healthRecordsCache.values
-            .filter { it.nextReminderDate != null && it.nextReminderDate.before(cutoffTime) }
-            .sortedBy { it.nextReminderDate }
-        
-        // TODO: Implement Room database query
-        // Example:
-        // val cutoffDate = SimpleDateFormat("yyyy-MM-dd").format(cutoffTime)
-        // return healthRecordDao.getUpcomingReminders(cutoffDate)
-        //     .map { it.toHealthRecord() }
+        println("HealthLocalDataSourceImpl.getUpcomingReminders is a placeholder and needs proper implementation strategy aligned with ReminderRepository.")
+        return emptyList()
     }
     
     override suspend fun clearOutdatedRecords(olderThan: Long) {
-        val cutoffTime = Date(olderThan)
-        
-        // Filter from in-memory cache (temporary)
-        val recordsToRemove = healthRecordsCache.values
-            .filter { it.recordDate.before(cutoffTime) }
-            .mapNotNull { it.id }
-        
-        recordsToRemove.forEach { recordId ->
-            healthRecordsCache.remove(recordId)
-            mediaCache.remove(recordId)
-        }
-        
-        // TODO: Implement Room database deletion
-        // Example:
-        // val cutoffDate = SimpleDateFormat("yyyy-MM-dd").format(cutoffTime)
-        // healthRecordDao.deleteRecordsOlderThan(cutoffDate)
+        throw NotImplementedError("clearOutdatedRecords not implemented yet.")
     }
 }

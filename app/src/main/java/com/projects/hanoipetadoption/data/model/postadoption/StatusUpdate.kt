@@ -7,7 +7,7 @@ import java.util.Date
  * Domain model for pet status update
  */
 data class StatusUpdate(
-    val id: Int? = null,
+    val id: Long? = null,
     val petId: String,
     val userId: Int? = null,
     val content: String,
@@ -20,8 +20,8 @@ data class StatusUpdate(
  * Domain model for status update media
  */
 data class StatusMedia(
-    val id: Int? = null,
-    val statusUpdateId: Int? = null,
+    val id: Long? = null,
+    val statusUpdateId: Long? = null,
     val mediaType: String,
     val filePath: String,
     val uploadDate: Date = Date()
@@ -43,7 +43,7 @@ data class Comment(
  * API response model for status update
  */
 data class StatusUpdateResponse(
-    val id: Int,
+    val id: Long,
     @SerializedName("pet_id")
     val petId: String,
     @SerializedName("user_id")
@@ -78,9 +78,9 @@ data class StatusUpdateListResponse(
  * API response model for status media
  */
 data class StatusMediaResponse(
-    val id: Int,
+    val id: Long,
     @SerializedName("status_update_id")
-    val statusUpdateId: Int,
+    val statusUpdateId: Long,
     @SerializedName("media_type")
     val mediaType: String,
     @SerializedName("file_path")
@@ -99,7 +99,7 @@ data class StatusMediaResponse(
 data class CommentResponse(
     val id: Int,
     @SerializedName("status_update_id")
-    val statusUpdateId: Int,
+    val statusUpdateId: Long,
     @SerializedName("user_id")
     val userId: Int,
     @SerializedName("user_name")

@@ -47,6 +47,7 @@ import com.projects.hanoipetadoption.ui.viewmodel.postadoption.CareInstructionsV
 import com.projects.hanoipetadoption.ui.viewmodel.postadoption.HealthTrackerViewModel
 import com.projects.hanoipetadoption.ui.viewmodel.postadoption.PetStatusViewModel
 import com.projects.hanoipetadoption.ui.viewmodel.postadoption.ReminderViewModel
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -71,7 +72,7 @@ val postAdoptionModule = module {
         HealthRemoteDataSourceImpl(get())
     }
     single<HealthLocalDataSource> {
-        HealthLocalDataSourceImpl(get())
+        HealthLocalDataSourceImpl(get(), get())
     }
     single<ReminderRemoteDataSource> {
         ReminderRemoteDataSourceImpl(get())
@@ -89,7 +90,7 @@ val postAdoptionModule = module {
         StatusRemoteDataSourceImpl(get())
     }
     single<StatusLocalDataSource> {
-        StatusLocalDataSourceImpl(get())
+        StatusLocalDataSourceImpl(androidContext(), get())
     }
     
     // Repositories
