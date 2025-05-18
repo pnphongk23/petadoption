@@ -1,7 +1,16 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp")
+}
+
+// Function to get current date as DDMMYYYY
+fun getCurrentDate(): String {
+    val dateFormat = SimpleDateFormat("ddMMYYYY")
+    return dateFormat.format(Date())
 }
 
 android {
@@ -13,7 +22,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 1
-        versionName = "1.0-09042025"
+        versionName = "1.0-${getCurrentDate()}"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

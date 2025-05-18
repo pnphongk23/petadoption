@@ -52,7 +52,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.asFlow
 import com.projects.hanoipetadoption.data.model.postadoption.Reminder
 import com.projects.hanoipetadoption.data.model.postadoption.ReminderType
 import com.projects.hanoipetadoption.ui.viewmodel.postadoption.ReminderState
@@ -73,8 +72,8 @@ fun ReminderScreen(
     onAddReminderClick: (String?) -> Unit,
     viewModel: ReminderViewModel = koinViewModel()
 ) {
-    val upcomingRemindersState by viewModel.upcomingRemindersState.asFlow().collectAsState(initial = ReminderState.Loading)
-    val petRemindersState by viewModel.remindersState.asFlow().collectAsState(initial = ReminderState.Loading)
+    val upcomingRemindersState by viewModel.upcomingRemindersState.collectAsState()
+    val petRemindersState by viewModel.remindersState.collectAsState()
     var selectedTabIndex by remember { mutableStateOf(0) }
 
     // If petId is null, we're showing all upcoming reminders
@@ -145,11 +144,6 @@ fun ReminderScreen(
                                 ErrorMessage(
                                     message = state.message,
                                     onRetry = { viewModel.loadRemindersForPet(petId) }
-                                )
-                            }
-                            null -> {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.align(Alignment.Center)
                                 )
                             }
                         }

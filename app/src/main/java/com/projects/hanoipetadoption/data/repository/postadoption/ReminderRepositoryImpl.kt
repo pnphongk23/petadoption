@@ -3,78 +3,73 @@ package com.projects.hanoipetadoption.data.repository.postadoption
 import com.projects.hanoipetadoption.data.mapper.toHealthRecord
 import com.projects.hanoipetadoption.data.mapper.toReminder
 import com.projects.hanoipetadoption.data.mapper.toReminderList
+import com.projects.hanoipetadoption.data.model.postadoption.HealthRecord
+import com.projects.hanoipetadoption.data.model.postadoption.RecordType
 import com.projects.hanoipetadoption.data.model.postadoption.Reminder
 import com.projects.hanoipetadoption.data.model.postadoption.VaccinationReminderCreate
 import com.projects.hanoipetadoption.data.source.postadoption.ReminderLocalDataSource
-import com.projects.hanoipetadoption.data.source.postadoption.ReminderRemoteDataSource
 import com.projects.hanoipetadoption.domain.repository.postadoption.ReminderRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 /**
  * Implementation of ReminderRepository
  */
 class ReminderRepositoryImpl(
-    private val remoteDataSource: ReminderRemoteDataSource,
     private val localDataSource: ReminderLocalDataSource
-) : ReminderRepository {    override suspend fun getUpcomingReminders(daysAhead: Int): Result<List<Reminder>> = 
-        withContext(Dispatchers.IO) {
-            return@withContext try {
-                val healthRecords = remoteDataSource.getUpcomingReminders(daysAhead).map { it.toHealthRecord() }
-                val reminders = healthRecords.toReminderList()
-                localDataSource.saveReminders(healthRecords)
-                Result.success(reminders)
-            } catch (e: Exception) {
-                    Result.failure(e)
+) : ReminderRepository {
+    override fun getUpcomingReminders(daysAhead: Int): Flow<List<Reminder>> {
+        return localDataSource.getUpcomingReminders(daysAhead)
+            .map { healthRecords ->
+                healthRecords.toReminderList()
             }
-        }
+    }
 
     override suspend fun createVaccinationReminder(reminder: VaccinationReminderCreate): Result<Reminder> =
         withContext(Dispatchers.IO) {
             return@withContext try {
-                val createdHealthRecord = remoteDataSource.createVaccinationReminder(reminder)
-                val createdReminder = createdHealthRecord.toHealthRecord().toReminder()
-                Result.success(createdReminder)
+                val newHealthRecordFields = HealthRecord(
+                    id = null, 
+                    petId = reminder.petId,
+                    userId = null, 
+                    recordType = RecordType.VACCINATION,
+                    notes = reminder.notes,
+                    weight = null, 
+                    recordDate = java.util.Date(),
+                    nextReminderDate = reminder.reminderDate,
+                    mediaItems = emptyList()
+                )
+                val savedHealthRecordWithId = localDataSource.saveReminder(newHealthRecordFields)
+                val createdReminderDomainModel = savedHealthRecordWithId.toReminder()
+                Result.success(createdReminderDomainModel)
             } catch (e: Exception) {
                 Result.failure(e)
             }
         }
 
-    override suspend fun getRemindersForPet(petId: String): Result<List<Reminder>> =
-        withContext(Dispatchers.IO) {
-            return@withContext try {
-                val healthRecords = remoteDataSource.getRemindersForPet(petId).map { it.toHealthRecord() }
-                val reminders = healthRecords.toReminderList()
-                localDataSource.saveReminders(healthRecords)
-                Result.success(reminders)
-            } catch (e: Exception) {
-                try {
-                    val cachedReminders = localDataSource.getRemindersForPet(petId).map { it.toReminder() }
-                    if (cachedReminders.isNotEmpty()) {
-                        Result.success(cachedReminders)
-                    } else {
-                        Result.failure(e)
-                    }
-                } catch (cacheException: Exception) {
-                    Result.failure(e)
-                }
+    override fun getRemindersForPet(petId: String): Flow<List<Reminder>> {
+        return localDataSource.getRemindersForPet(petId)
+            .map { healthRecords ->
+                healthRecords.toReminderList()
             }
-        }
+    }
 
-    override suspend fun markReminderComplete(reminderId: Int): Result<Boolean> = 
+    override suspend fun markReminderComplete(reminderId: Int): Result<Boolean> =
         withContext(Dispatchers.IO) {
             return@withContext try {
-                val success = remoteDataSource.markReminderComplete(reminderId)
+                localDataSource.markReminderComplete(reminderId)
                 Result.success(true)
             } catch (e: Exception) {
                 Result.failure(e)
             }
         }
 
-    override suspend fun deleteReminder(reminderId: Int): Result<Boolean> = 
+    override suspend fun deleteReminder(reminderId: Int): Result<Boolean> =
         withContext(Dispatchers.IO) {
             return@withContext try {
-                val success = remoteDataSource.deleteReminder(reminderId)
+                localDataSource.deleteReminder(reminderId)
                 Result.success(true)
             } catch (e: Exception) {
                 Result.failure(e)

@@ -54,7 +54,7 @@ fun AddReminderDialog(
 ) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var selectedReminderType by remember { mutableStateOf<ReminderType>(ReminderType.VACCINATION) }
+    var selectedReminderType by remember { mutableStateOf(ReminderType.VACCINATION) }
     var isRecurring by remember { mutableStateOf(false) }
     var reminderExpanded by remember { mutableStateOf(false) }
     
@@ -245,7 +245,7 @@ fun AddReminderDialog(
                                 petId = petId ?: "",
                                 name = title,
                                 notes = description.ifEmpty { null },
-                                reminderDate = reminderDate.toString(),
+                                reminderDate = reminderDate,
                                 isRecurring = isRecurring
                             )
                             

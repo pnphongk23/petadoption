@@ -55,7 +55,7 @@ data class VaccinationReminderCreate(
     val name: String,
     val notes: String?,
     @SerializedName("reminder_date")
-    val reminderDate: String,
+    val reminderDate: Date,
     @SerializedName("is_recurring")
     val isRecurring: Boolean = false,
     @SerializedName("recurrence_interval_days")

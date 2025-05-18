@@ -96,7 +96,7 @@ val postAdoptionModule = module {
     // Repositories
     single<HealthRepository> { HealthRepositoryImpl(get(), get()) }
     single<HealthRecordRepository> { HealthRecordRepositoryImpl(get()) }
-    single<ReminderRepository> { ReminderRepositoryImpl(get(), get()) }
+    single<ReminderRepository> { ReminderRepositoryImpl(get()) }
     single<CareRepository> { CareRepositoryImpl(get(), get()) }
     single<StatusRepository> { StatusRepositoryImpl(get(), get()) }
 

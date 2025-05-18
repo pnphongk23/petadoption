@@ -1,106 +1,83 @@
 package com.projects.hanoipetadoption.data.source.postadoption
 
-import android.content.Context
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.projects.hanoipetadoption.worker.ReminderNotificationWorker
+import com.projects.hanoipetadoption.data.local.dao.ReminderDao
+import com.projects.hanoipetadoption.data.mapper.toHealthRecord
+import com.projects.hanoipetadoption.data.mapper.toHealthRecordList
+import com.projects.hanoipetadoption.data.mapper.toReminderEntity
 import com.projects.hanoipetadoption.data.model.postadoption.HealthRecord
-import com.projects.hanoipetadoption.data.model.postadoption.RecordType
+import com.projects.hanoipetadoption.worker.ReminderNotificationWorker
 import java.util.Date
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 /**
  * Implementation of ReminderLocalDataSource that uses Room database and WorkManager
  */
 class ReminderLocalDataSourceImpl(
-    private val context: Context,
+    private val reminderDao: ReminderDao,
     private val workManager: WorkManager
 ) : ReminderLocalDataSource {
     
-    // In-memory cache for reminders (temporary until Room implementation)
-    private val reminderCache = mutableMapOf<Int, HealthRecord>()
-    
     override suspend fun saveReminders(reminders: List<HealthRecord>) {
-        // Add to in-memory cache (temporary)
-        reminders.forEach { reminder ->
-            reminder.id?.let { id ->
-                reminderCache[id] = reminder
-                // Also schedule notifications for the reminder
-                if (reminder.nextReminderDate != null) {
-                    scheduleReminderNotification(reminder)
-                }
+        reminders.forEach { healthRecord ->
+            // Save each record and get its generated ID for notification scheduling
+            val entity = healthRecord.toReminderEntity()
+            val generatedId = reminderDao.insertReminder(entity) // Returns Long
+
+            val recordForNotification = healthRecord.copy(id = generatedId.toInt())
+            if (recordForNotification.nextReminderDate != null && recordForNotification.id != null && recordForNotification.id != 0) {
+                scheduleReminderNotification(recordForNotification)
             }
         }
-        
-        // TODO: Implement Room database storage
-        // Example:
-        // reminderDao.insertAll(reminders.map { it.toReminderEntity() })
     }
     
-    override suspend fun getRemindersForPet(
+    override fun getRemindersForPet(
         petId: String,
         status: String?
-    ): List<HealthRecord> {
-        // Filter from in-memory cache (temporary)
-        return reminderCache.values
-            .filter { it.petId == petId }
-            .filter {
-                status == null || 
-                (status == "completed" && it.nextReminderDate == null) ||
-                (status == "scheduled" && it.nextReminderDate != null)
+    ): Flow<List<HealthRecord>> {
+        return reminderDao.getRemindersForPet(petId) 
+            .map { entities -> 
+                val healthRecords = entities.toHealthRecordList()
+                // Apply status filtering based on the properties of HealthRecord
+                healthRecords
+                    .filter { hr ->
+                        status == null ||
+                                (status.equals("completed", ignoreCase = true) && hr.nextReminderDate == null) || 
+                                (status.equals("scheduled", ignoreCase = true) && hr.nextReminderDate != null)
+                    }
+                    .sortedBy { it.nextReminderDate ?: Date(Long.MAX_VALUE) }
             }
-            .sortedBy { it.nextReminderDate ?: Date(Long.MAX_VALUE) }
-        
-        // TODO: Implement Room database query
-        // Example:
-        // return reminderDao.getRemindersForPet(petId, status)
-        //     .map { it.toHealthRecord() }
     }
     
     override suspend fun getReminder(reminderId: Int): HealthRecord? {
-        // Return from in-memory cache (temporary)
-        return reminderCache[reminderId]
-        
-        // TODO: Implement Room database query
-        // Example:
-        // val entity = reminderDao.getReminder(reminderId)
-        // return entity?.toHealthRecord()
+        val entity = reminderDao.getReminderById(reminderId.toLong())
+        return entity?.toHealthRecord()
     }
     
-    override suspend fun saveReminder(reminder: HealthRecord) {
-        // Add to in-memory cache (temporary)
-        reminder.id?.let { id ->
-            reminderCache[id] = reminder
-            
-            // Schedule notification if it has a reminder date
-            if (reminder.nextReminderDate != null) {
-                scheduleReminderNotification(reminder)
-            } else {
-                cancelReminderNotification(id)
-            }
+    override suspend fun saveReminder(reminder: HealthRecord): HealthRecord {
+        val entity = reminder.toReminderEntity() // id might be 0L if new
+        val generatedId = reminderDao.insertReminder(entity) // Returns new rowId as Long
+
+        val savedHealthRecord = reminder.copy(id = generatedId.toInt())
+
+        // Schedule notification with the HealthRecord that has the correct ID
+        if (savedHealthRecord.nextReminderDate != null && savedHealthRecord.id != 0) {
+            scheduleReminderNotification(savedHealthRecord)
+        } else if (savedHealthRecord.id != 0) { 
+            cancelReminderNotification(savedHealthRecord.id!!) 
         }
-        
-        // TODO: Implement Room database insertion
-        // Example:
-        // reminderDao.insert(reminder.toReminderEntity())
+        return savedHealthRecord // Return the HealthRecord with the DB-generated ID
     }
     
     override suspend fun markReminderComplete(reminderId: Int) {
-        // Update in-memory cache (temporary)
-        reminderCache[reminderId]?.let { reminder ->
-            // Mark as complete by removing the reminder date
-            reminderCache[reminderId] = reminder.copy(nextReminderDate = null)
-            
-            // Cancel any scheduled notification
-            cancelReminderNotification(reminderId)
-        }
-        
-        // TODO: Implement Room database update
-        // Example:
-        // reminderDao.markComplete(reminderId)
+        reminderDao.markReminderAsComplete(reminderId.toLong())
+        cancelReminderNotification(reminderId) // Cancel any scheduled notification for this reminder
     }
     
     override suspend fun updateReminder(
@@ -108,88 +85,79 @@ class ReminderLocalDataSourceImpl(
         reminderDate: Date,
         notes: String?
     ) {
-        // Update in-memory cache (temporary)
-        reminderCache[reminderId]?.let { reminder ->
-            val updatedReminder = reminder.copy(
-                nextReminderDate = reminderDate,
-                notes = notes ?: reminder.notes
+        val existingEntity = reminderDao.getReminderById(reminderId.toLong())
+        existingEntity?.let {
+            // When updating, it's no longer completed if it was
+            val updatedEntity = it.copy(
+                dueDate = reminderDate,
+                description = notes ?: it.description, // Keep old notes if new one is null
+                isCompleted = false // An updated reminder is implicitly not completed
             )
-            reminderCache[reminderId] = updatedReminder
-            
-            // Update the notification
-            scheduleReminderNotification(updatedReminder)
+            reminderDao.updateReminder(updatedEntity)
+
+            // Reschedule notification with updated info
+            val healthRecordForNotification = updatedEntity.toHealthRecord()
+            scheduleReminderNotification(healthRecordForNotification)
         }
-        
-        // TODO: Implement Room database update
-        // Example:
-        // reminderDao.updateReminder(reminderId, reminderDate, notes)
     }
     
     override suspend fun deleteReminder(reminderId: Int) {
-        // Remove from in-memory cache (temporary)
-        reminderCache.remove(reminderId)
-        
-        // Cancel any scheduled notification
-        cancelReminderNotification(reminderId)
-        
-        // TODO: Implement Room database deletion
-        // Example:
-        // reminderDao.deleteReminder(reminderId)
+        reminderDao.deleteReminderById(reminderId.toLong())
+        cancelReminderNotification(reminderId) // Cancel any scheduled notification
     }
     
-    override suspend fun getUpcomingReminders(daysAhead: Int): List<HealthRecord> {
-        val cutoffTime = Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(daysAhead.toLong()))
-        
-        // Filter from in-memory cache (temporary)
-        return reminderCache.values
-            .filter { it.nextReminderDate != null && it.nextReminderDate.before(cutoffTime) }
-            .sortedBy { it.nextReminderDate }
-        
-        // TODO: Implement Room database query
-        // Example:
-        // val cutoffDate = SimpleDateFormat("yyyy-MM-dd").format(cutoffTime)
-        // return reminderDao.getUpcomingReminders(cutoffDate)
-        //     .map { it.toHealthRecord() }
+    override fun getUpcomingReminders(daysAhead: Int): Flow<List<HealthRecord>> {
+        val currentTime = System.currentTimeMillis()
+        val cutoffTime = currentTime + TimeUnit.DAYS.toMillis(daysAhead.toLong())
+
+        // DAO method getUpcomingReminders already filters by is_completed = 0 and sorts by due_date
+        return reminderDao.getUpcomingReminders(currentTime, cutoffTime)
+            .map { entities -> 
+                entities.toHealthRecordList()
+                // The DAO query already sorts and filters by is_completed = 0.
+                // Additional HealthRecord specific filtering/sorting could go here if needed.
+            }
     }
     
     override suspend fun scheduleReminderNotification(reminder: HealthRecord) {
-        reminder.id?.let { id ->
-            val reminderDate = reminder.nextReminderDate ?: return
-            
-            // Calculate delay until reminder time
-            val currentTime = System.currentTimeMillis()
-            val reminderTime = reminderDate.time
-            
-            // Only schedule if the reminder is in the future
-            if (reminderTime > currentTime) {
-                val delay = reminderTime - currentTime
-                  // Create work data
-                val inputData = workDataOf(
-                    "reminderId" to id,
-                    "petId" to reminder.petId,
-                    "title" to "Pet Vaccination Reminder",
-                    "content" to (reminder.notes ?: "Time for your pet's vaccination")
-                )
-                
-                // Create work request
-                val notificationWork = OneTimeWorkRequestBuilder<ReminderNotificationWorker>()
-                    .setInputData(inputData)
-                    .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-                    .addTag("reminder_$id")
-                    .build()
-                
-                // Schedule unique work
-                workManager.enqueueUniqueWork(
-                    "reminder_$id",
-                    ExistingWorkPolicy.REPLACE,
-                    notificationWork
-                )
-            }
+        val reminderIdInt = reminder.id ?: return
+        if (reminderIdInt == 0) return
+
+        val reminderDate = reminder.nextReminderDate ?: return
+
+        val currentTime = System.currentTimeMillis()
+        val reminderTime = reminderDate.time
+
+        if (reminderTime > currentTime) {
+            val delay = reminderTime - currentTime
+
+            val notificationTitle = reminder.notes?.lineSequence()?.firstOrNull()?.take(100) ?: "Pet Reminder"
+            val notificationContent = reminder.notes ?: "Check your pet's upcoming event."
+
+            val inputData = workDataOf(
+                ReminderNotificationWorker.KEY_REMINDER_ID to reminderIdInt,
+                ReminderNotificationWorker.KEY_PET_ID to reminder.petId, // Assuming HealthRecord.petId is String, but Worker expects Int. This needs to be checked.
+                ReminderNotificationWorker.KEY_TITLE to notificationTitle,
+                ReminderNotificationWorker.KEY_CONTENT to notificationContent
+            )
+
+            val notificationWorkRequest = OneTimeWorkRequestBuilder<ReminderNotificationWorker>()
+                .setInputData(inputData)
+                .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                .addTag("reminder_tag_${reminderIdInt}")
+                .build()
+
+            workManager.enqueueUniqueWork(
+                "reminder_work_${reminderIdInt}",
+                ExistingWorkPolicy.REPLACE,
+                notificationWorkRequest
+            )
         }
     }
     
     override suspend fun cancelReminderNotification(reminderId: Int) {
-        // Cancel any scheduled notification work
-        workManager.cancelUniqueWork("reminder_$reminderId")
-    }    // ReminderNotificationWorker is now in a separate file
+        if (reminderId == 0) return
+        workManager.cancelUniqueWork("reminder_work_${reminderId}")
+        workManager.cancelAllWorkByTag("reminder_tag_${reminderId}") // Also cancel by tag for safety
+    }
 }

@@ -1,15 +1,23 @@
 package com.projects.hanoipetadoption.ui.viewmodel.postadoption
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.projects.hanoipetadoption.data.mapper.toEntity
+import com.projects.hanoipetadoption.data.mapper.toModelSimple
+import com.projects.hanoipetadoption.data.mapper.toReminder
+import com.projects.hanoipetadoption.data.mapper.toReminderEntity
 import com.projects.hanoipetadoption.data.model.postadoption.Reminder
 import com.projects.hanoipetadoption.data.model.postadoption.VaccinationReminderCreate
 import com.projects.hanoipetadoption.domain.usecase.postadoption.CreateVaccinationReminderUseCase
 import com.projects.hanoipetadoption.domain.usecase.postadoption.GetRemindersForPetUseCase
 import com.projects.hanoipetadoption.domain.usecase.postadoption.GetUpcomingRemindersUseCase
 import com.projects.hanoipetadoption.domain.usecase.postadoption.MarkReminderCompleteUseCase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 /**
@@ -31,29 +39,22 @@ class ReminderViewModel(
     private val markReminderCompleteUseCase: MarkReminderCompleteUseCase
 ) : ViewModel() {
 
-    private val _remindersState = MutableLiveData<ReminderState>()
-    val remindersState: LiveData<ReminderState> = _remindersState
+    private val _remindersState = MutableStateFlow<ReminderState>(ReminderState.Loading)
+    val remindersState: StateFlow<ReminderState> = _remindersState.asStateFlow()
 
-    private val _upcomingRemindersState = MutableLiveData<ReminderState>()
-    val upcomingRemindersState: LiveData<ReminderState> = _upcomingRemindersState
+    private val _upcomingRemindersState = MutableStateFlow<ReminderState>(ReminderState.Loading)
+    val upcomingRemindersState: StateFlow<ReminderState> = _upcomingRemindersState.asStateFlow()
 
     /**
      * Load reminders for a pet
      */
     fun loadRemindersForPet(petId: String) {
-        _remindersState.value = ReminderState.Loading
         viewModelScope.launch {
             getRemindersForPetUseCase(petId)
-                .fold(
-                    onSuccess = { reminders ->
-                        _remindersState.value = ReminderState.Success(reminders)
-                    },
-                    onFailure = { error ->
-                        _remindersState.value = ReminderState.Error(
-                            error.message ?: "Failed to load reminders"
-                        )
-                    }
-                )
+                .onStart { _remindersState.value = ReminderState.Loading }
+                .map { reminders -> ReminderState.Success(reminders) }
+                .catch { e -> _remindersState.value = ReminderState.Error(e.message ?: "Failed to load reminders") }
+                .collect { state -> _remindersState.value = state }
         }
     }
 
@@ -61,19 +62,12 @@ class ReminderViewModel(
      * Load upcoming reminders
      */
     fun loadUpcomingReminders(daysAhead: Int = 7) {
-        _upcomingRemindersState.value = ReminderState.Loading
         viewModelScope.launch {
             getUpcomingRemindersUseCase(daysAhead)
-                .fold(
-                    onSuccess = { reminders ->
-                        _upcomingRemindersState.value = ReminderState.Success(reminders)
-                    },
-                    onFailure = { error ->
-                        _upcomingRemindersState.value = ReminderState.Error(
-                            error.message ?: "Failed to load upcoming reminders"
-                        )
-                    }
-                )
+                .onStart { _upcomingRemindersState.value = ReminderState.Loading }
+                .map { reminders -> ReminderState.Success(reminders) }
+                .catch { e -> _upcomingRemindersState.value = ReminderState.Error(e.message ?: "Failed to load upcoming reminders") }
+                .collect { state -> _upcomingRemindersState.value = state }
         }
     }
 
@@ -87,13 +81,12 @@ class ReminderViewModel(
         viewModelScope.launch {
             createVaccinationReminderUseCase(reminder)
                 .fold(
-                    onSuccess = { createdReminder ->
-                        // Reload reminders after creating a new one
+                    onSuccess = {
                         loadRemindersForPet(reminder.petId)
                         loadUpcomingReminders()
                         onComplete(true)
                     },
-                    onFailure = { error ->
+                    onFailure = { _ ->
                         onComplete(false)
                     }
                 )
@@ -109,27 +102,25 @@ class ReminderViewModel(
                 .fold(
                     onSuccess = { success ->
                         if (success) {
-                            // Refresh the reminders after marking one as complete
-                            val currentReminders = _remindersState.value
-                            if (currentReminders is ReminderState.Success) {
-                                val updatedReminders = currentReminders.reminders.map { 
-                                    if (it.id == reminderId) it.copy(isCompleted = true) else it 
+                            val currentPetReminders = _remindersState.value
+                            if (currentPetReminders is ReminderState.Success) {
+                                val updatedList = currentPetReminders.reminders.map {
+                                    if (it.id == reminderId) it.copy(isCompleted = true) else it
                                 }
-                                _remindersState.value = ReminderState.Success(updatedReminders)
+                                _remindersState.value = ReminderState.Success(updatedList)
                             }
 
                             val currentUpcoming = _upcomingRemindersState.value
                             if (currentUpcoming is ReminderState.Success) {
-                                val updatedUpcoming = currentUpcoming.reminders.map { 
-                                    if (it.id == reminderId) it.copy(isCompleted = true) else it 
+                                val updatedList = currentUpcoming.reminders.map {
+                                    if (it.id == reminderId) it.copy(isCompleted = true) else it
                                 }
-                                _upcomingRemindersState.value =
-                                    ReminderState.Success(updatedUpcoming)
+                                _upcomingRemindersState.value = ReminderState.Success(updatedList)
                             }
                         }
                         onComplete(success)
                     },
-                    onFailure = { error ->
+                    onFailure = { _ ->
                         onComplete(false)
                     }
                 )

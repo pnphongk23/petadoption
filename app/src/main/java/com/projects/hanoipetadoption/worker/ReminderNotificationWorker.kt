@@ -23,28 +23,38 @@ class ReminderNotificationWorker(
     companion object {
         const val CHANNEL_ID = "pet_reminders_channel"
         const val NOTIFICATION_ID_PREFIX = 1000
+        // Define keys for WorkManager input data to be accessed by ReminderLocalDataSourceImpl
+        const val KEY_REMINDER_ID = "reminderId"
+        const val KEY_PET_ID = "petId"
+        const val KEY_TITLE = "title"
+        const val KEY_CONTENT = "content"
     }
 
     override fun doWork(): Result {
-        // Get input data
-        val reminderId = inputData.getInt("reminderId", 0)
-        val petId = inputData.getInt("petId", 0)
-        val title = inputData.getString("title") ?: "Pet Reminder"
-        val content = inputData.getString("content") ?: "You have a reminder for your pet"
+        val reminderId = inputData.getInt(KEY_REMINDER_ID, 0)
+        // Changed to getString to match the type of petId in HealthRecord/ReminderEntity
+        val petId = inputData.getString(KEY_PET_ID) 
+        val title = inputData.getString(KEY_TITLE) ?: "Pet Reminder"
+        val content = inputData.getString(KEY_CONTENT) ?: "You have a reminder for your pet"
+
+        if (reminderId == 0 || petId == null) {
+            // Invalid input, perhaps log an error or return failure
+            return Result.failure()
+        }
 
         // Create notification channel (required for Android O and above)
         createNotificationChannel()
 
         // Create intent for when the notification is tapped
         val intent = Intent(context, MainActivity::class.java).apply {
-            putExtra("reminderId", reminderId)
-            putExtra("petId", petId)
+            putExtra(KEY_REMINDER_ID, reminderId)
+            putExtra(KEY_PET_ID, petId) // Now passing String petId
             putExtra("openReminder", true)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         val pendingIntent = PendingIntent.getActivity(
             context, 
-            reminderId,
+            reminderId, // Use reminderId for requestCode to ensure uniqueness for PendingIntent updates
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )        // Build the notification
@@ -58,6 +68,7 @@ class ReminderNotificationWorker(
 
         // Show the notification
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        // Use a unique notification ID by combining prefix and reminderId
         notificationManager.notify(NOTIFICATION_ID_PREFIX + reminderId, builder.build())
 
         return Result.success()

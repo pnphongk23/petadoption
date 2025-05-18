@@ -62,7 +62,7 @@ fun HealthTrackerScreen(
     onAddRecordClick: (String) -> Unit,
     viewModel: HealthTrackerViewModel = koinViewModel()
 ) {
-    val healthRecordsState by viewModel.healthRecordsState.asFlow().collectAsState(initial = HealthRecordsState.Loading)
+    val healthRecordsState by viewModel.healthRecordsState.collectAsState(initial = HealthRecordsState.Loading)
 
     LaunchedEffect(petId) {
         viewModel.loadHealthRecords(petId)

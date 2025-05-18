@@ -2,13 +2,14 @@ package com.projects.hanoipetadoption.domain.usecase.postadoption
 
 import com.projects.hanoipetadoption.data.model.postadoption.HealthRecord
 import com.projects.hanoipetadoption.data.model.postadoption.RecordType
-import com.projects.hanoipetadoption.domain.repository.postadoption.HealthRepository
+import com.projects.hanoipetadoption.domain.repository.postadoption.HealthRecordRepository
+import com.projects.hanoipetadoption.data.util.Result
 import java.util.Date
 
 /**
  * Use case to get health records for a pet
  */
-class GetHealthRecordsForPetUseCase(private val repository: HealthRepository) {
+class GetHealthRecordsForPetUseCase(private val repository: HealthRecordRepository) {
     /**
      * Execute the use case
      */

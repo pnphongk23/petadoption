@@ -2,6 +2,7 @@ package com.projects.hanoipetadoption.data.source.postadoption
 
 import com.projects.hanoipetadoption.data.model.postadoption.HealthRecord
 import com.projects.hanoipetadoption.data.model.postadoption.HealthRecordMedia
+import com.projects.hanoipetadoption.data.model.postadoption.VaccinationReminderCreate
 
 /**
  * Interface for local data source operations related to health records
@@ -35,6 +36,7 @@ interface HealthLocalDataSource {
     /**
      * Save a health record to local storage
      * @param record The health record to save
+     * @return The saved health record, potentially with an updated ID
      */
     suspend fun saveHealthRecord(record: HealthRecord)
     
@@ -48,6 +50,7 @@ interface HealthLocalDataSource {
      * Save media items for a health record to local storage
      * @param recordId The ID of the health record
      * @param media List of media items to save
+     * @return List of saved media items, potentially with updated IDs
      */
     suspend fun saveMediaForHealthRecord(recordId: Int, media: List<HealthRecordMedia>)
     
@@ -77,4 +80,11 @@ interface HealthLocalDataSource {
      * @param olderThan Timestamp in milliseconds; records older than this will be cleared
      */
     suspend fun clearOutdatedRecords(olderThan: Long)
+
+    /**
+     * Creates a vaccination reminder and stores it as a health record.
+     * @param reminder The vaccination reminder details.
+     * @return The created health record representing the reminder.
+     */
+    suspend fun createVaccinationReminder(reminder: VaccinationReminderCreate): HealthRecord
 }

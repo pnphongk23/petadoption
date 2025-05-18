@@ -6,7 +6,6 @@ import com.projects.hanoipetadoption.data.mapper.toPresentation
 import com.projects.hanoipetadoption.data.model.postadoption.HealthRecord
 import com.projects.hanoipetadoption.data.model.postadoption.HealthRecordCreate
 import com.projects.hanoipetadoption.data.model.postadoption.PetStatusUpdate
-import com.projects.hanoipetadoption.data.model.postadoption.Reminder // For the StateFlow
 import com.projects.hanoipetadoption.data.model.postadoption.VaccinationReminderCreate
 import com.projects.hanoipetadoption.domain.repository.PetRepository
 import com.projects.hanoipetadoption.domain.repository.postadoption.HealthRecordRepository
@@ -40,28 +39,18 @@ class AdoptedPetHubViewModel(
     val petDetails: StateFlow<Pet?> = _petDetails.asStateFlow()
 
     private val _statusUpdates = MutableStateFlow<List<PetStatusUpdate>>(emptyList())
-    val statusUpdates: StateFlow<List<PetStatusUpdate>> = _statusUpdates.asStateFlow()
-
-    private val _reminders = MutableStateFlow<List<Reminder>>(emptyList()) // Changed from List<Any>
-    val reminders: StateFlow<List<Reminder>> = _reminders.asStateFlow()
 
     private val _healthRecords = MutableStateFlow<List<HealthRecord>>(emptyList())
-    val healthRecords: StateFlow<List<HealthRecord>> = _healthRecords.asStateFlow()
 
     // TODO: Add StateFlows for loading states (e.g., _isLoading, _errorMessages)
 
     fun loadPetDetails(petId: String) {
         viewModelScope.launch {
-            // TODO: Set _isLoading true
             try {
-                // Fetch basic pet details if needed (e.g., from a general PetRepository)
-                // For now, using the sample. Replace with actual repository call.
-                // _petDetails.value = petRepository.getPetById(petId.toString()).getOrNull() ?: getSamplePet(petId)
-                 _petDetails.value = getSamplePet(petId) // Using sample for now
+                 _petDetails.value = getPetById(petId) // Using sample for now
 
                 // Load related post-adoption data
                 loadStatusUpdates(petId)
-                loadReminders(petId)
                 loadHealthRecords(petId)
             } catch (e: Exception) {
                 _petDetails.value = null // Clear on error or set an error state
@@ -84,16 +73,6 @@ class AdoptedPetHubViewModel(
         }
     }
 
-    fun loadReminders(petId: String) {
-        viewModelScope.launch {
-            reminderRepository.getRemindersForPet(petId).onSuccess {
-                _reminders.value = it
-            }.onFailure {
-                // TODO: Update error StateFlow for reminders
-                _reminders.value = emptyList()
-            }
-        }
-    }
 
     fun loadHealthRecords(petId: String) {
         viewModelScope.launch {
@@ -130,13 +109,7 @@ class AdoptedPetHubViewModel(
 
     fun addReminder(reminderCreate: VaccinationReminderCreate) {
         viewModelScope.launch {
-            // Assuming reminderCreate.petId is valid and set from the dialog/screen
-            reminderRepository.createVaccinationReminder(reminderCreate).onSuccess { createdReminder ->
-                 _reminders.value = listOf(createdReminder) + _reminders.value
-                // loadReminders(reminderCreate.petId) // Or reload
-            }.onFailure {
-                // TODO: Update error StateFlow / show error message to user
-            }
+            reminderRepository.createVaccinationReminder(reminderCreate)
         }
     }
 
@@ -165,7 +138,7 @@ class AdoptedPetHubViewModel(
     }
 
     @OptIn(InternalCoroutinesApi::class)
-    private suspend fun getSamplePet(petId: String): Pet = coroutineScope {
+    private suspend fun getPetById(petId: String): Pet = coroutineScope {
         suspendCancellableCoroutine { conn ->
             launch {
                  petRepository.getPetById(petId).onSuccess { conn.tryResume(it.toPresentation()) }

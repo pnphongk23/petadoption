@@ -7,6 +7,7 @@ import com.projects.hanoipetadoption.data.mapper.toModel
 import com.projects.hanoipetadoption.data.model.postadoption.HealthRecord
 import com.projects.hanoipetadoption.data.model.postadoption.HealthRecordMedia
 import com.projects.hanoipetadoption.data.model.postadoption.RecordType
+import com.projects.hanoipetadoption.data.model.postadoption.VaccinationReminderCreate
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import java.io.File
@@ -136,5 +137,17 @@ class HealthLocalDataSourceImpl constructor(
     
     override suspend fun clearOutdatedRecords(olderThan: Long) {
         throw NotImplementedError("clearOutdatedRecords not implemented yet.")
+    }
+
+    override suspend fun createVaccinationReminder(reminder: VaccinationReminderCreate): HealthRecord {
+        val record = HealthRecord(
+            id = null,
+            petId = reminder.petId,
+            recordType = RecordType.VACCINATION,
+            mediaItems = emptyList(),
+            notes = reminder.notes
+        )
+        saveHealthRecord(record)
+        return record
     }
 }

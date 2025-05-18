@@ -2,6 +2,7 @@ package com.projects.hanoipetadoption.data.source.postadoption
 
 import com.projects.hanoipetadoption.data.model.postadoption.HealthRecord
 import java.util.Date
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Interface for local data source operations related to reminders
@@ -18,12 +19,12 @@ interface ReminderLocalDataSource {
      * Get reminders for a pet from local storage
      * @param petId The ID of the pet
      * @param status Optional filter for reminder status
-     * @return List of reminder records
+     * @return Flow emitting a list of reminder records
      */
-    suspend fun getRemindersForPet(
+    fun getRemindersForPet(
         petId: String,
         status: String? = null
-    ): List<HealthRecord>
+    ): Flow<List<HealthRecord>>
     
     /**
      * Get a reminder by ID from local storage
@@ -35,8 +36,9 @@ interface ReminderLocalDataSource {
     /**
      * Save a reminder to local storage
      * @param reminder The reminder to save
+     * @return The saved HealthRecord, potentially with an updated ID from the database
      */
-    suspend fun saveReminder(reminder: HealthRecord)
+    suspend fun saveReminder(reminder: HealthRecord): HealthRecord
     
     /**
      * Mark a reminder as complete in local storage
@@ -65,9 +67,9 @@ interface ReminderLocalDataSource {
     /**
      * Get upcoming reminders from local storage
      * @param daysAhead Number of days to look ahead
-     * @return List of upcoming reminders
+     * @return Flow emitting a list of upcoming reminders
      */
-    suspend fun getUpcomingReminders(daysAhead: Int = 7): List<HealthRecord>
+    fun getUpcomingReminders(daysAhead: Int = 7): Flow<List<HealthRecord>>
     
     /**
      * Schedule a notification for a reminder

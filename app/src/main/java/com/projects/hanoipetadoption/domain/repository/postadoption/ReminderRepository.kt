@@ -2,7 +2,7 @@ package com.projects.hanoipetadoption.domain.repository.postadoption
 
 import com.projects.hanoipetadoption.data.model.postadoption.Reminder
 import com.projects.hanoipetadoption.data.model.postadoption.VaccinationReminderCreate
-import java.util.Date
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository interface for reminders
@@ -12,9 +12,9 @@ interface ReminderRepository {
      * Get upcoming reminders for the user's pets
      * 
      * @param daysAhead Number of days ahead to check
-     * @return List of upcoming reminders
+     * @return A Flow emitting a list of upcoming reminders
      */
-    suspend fun getUpcomingReminders(daysAhead: Int = 7): Result<List<Reminder>>
+    fun getUpcomingReminders(daysAhead: Int): Flow<List<Reminder>>
 
     /**
      * Create a vaccination reminder
@@ -28,9 +28,9 @@ interface ReminderRepository {
      * Get reminders for a specific pet
      * 
      * @param petId ID of the pet
-     * @return List of reminders for the pet
+     * @return A Flow emitting a list of reminders for the pet
      */
-    suspend fun getRemindersForPet(petId: String): Result<List<Reminder>>
+    fun getRemindersForPet(petId: String): Flow<List<Reminder>>
 
     /**
      * Mark a reminder as completed

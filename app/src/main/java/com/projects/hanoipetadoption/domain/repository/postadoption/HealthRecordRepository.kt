@@ -109,4 +109,11 @@ interface HealthRecordRepository {
         isRecurring: Boolean = false,
         recurrenceIntervalDays: Int? = null
     ): Result<HealthRecord>
+
+    /**
+     * Clear outdated health records
+     * @param olderThan Timestamp in milliseconds; records older than this will be cleared
+     * @return Result indicating success or an error
+     */
+    suspend fun clearOutdatedHealthRecords(olderThan: Long): Result<Unit>
 }
