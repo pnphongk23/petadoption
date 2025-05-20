@@ -89,7 +89,7 @@ fun ReminderScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Reminders") }
+                title = { Text("Nhắc nhở chăm sóc") }
             )
         },
         floatingActionButton = {
@@ -97,7 +97,7 @@ fun ReminderScreen(
                 onClick = { onAddReminderClick(petId) },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Reminder")
+                Icon(Icons.Default.Add, contentDescription = "Thêm nhắc nhở mới")
             }
         }
     ) { paddingValues ->
@@ -110,12 +110,12 @@ fun ReminderScreen(
             if (petId != null) {
                 TabRow(selectedTabIndex = selectedTabIndex) {
                     Tab(
-                        text = { Text("All") },
+                        text = { Text("Tất cả") },
                         selected = selectedTabIndex == 0,
                         onClick = { selectedTabIndex = 0 }
                     )
                     Tab(
-                        text = { Text("Upcoming") },
+                        text = { Text("Sắp tới") },
                         selected = selectedTabIndex == 1,
                         onClick = { selectedTabIndex = 1 }
                     )
@@ -192,7 +192,7 @@ fun ReminderList(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "No reminders found",
+                text = "Không có nhắc nhở nào cả, bạn thêm mới nhé!",
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center
             )
@@ -221,7 +221,7 @@ fun ReminderItem(
     reminder: Reminder,
     onMarkComplete: (Int) -> Unit
 ) {
-    val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("dd MMM, yyyy", Locale.getDefault())
     val formattedDate = dateFormat.format(reminder.dueDate)
     
     // Calculate days remaining

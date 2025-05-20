@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.projects.hanoipetadoption.data.model.postadoption.ReminderType
 import com.projects.hanoipetadoption.data.model.postadoption.VaccinationReminderCreate
+import com.projects.hanoipetadoption.data.model.postadoption.displayName
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -85,7 +86,7 @@ fun AddReminderDialog(
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
-                    text = "Add Reminder",
+                    text = "Thêm nhắc nhở mới",
                     style = MaterialTheme.typography.headlineSmall
                 )
                 
@@ -95,7 +96,7 @@ fun AddReminderDialog(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Title") },
+                    label = { Text("Tiêu đề") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 
@@ -105,7 +106,7 @@ fun AddReminderDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Description") },
+                    label = { Text("Mô tả") },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 2
                 )
@@ -118,10 +119,10 @@ fun AddReminderDialog(
                     onExpandedChange = { reminderExpanded = it }
                 ) {
                     OutlinedTextField(
-                        value = selectedReminderType.toString(),
+                        value = selectedReminderType.displayName(),
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Reminder Type") },
+                        label = { Text("Loại nhắc nhở") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = reminderExpanded) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -134,7 +135,7 @@ fun AddReminderDialog(
                     ) {
                         ReminderType.values().forEach { reminderType ->
                             DropdownMenuItem(
-                                text = { Text(reminderType.toString()) },
+                                text = { Text(reminderType.displayName()) },
                                 onClick = {
                                     selectedReminderType = reminderType
                                     reminderExpanded = false
@@ -150,12 +151,12 @@ fun AddReminderDialog(
                 OutlinedTextField(
                     value = datePickerState.selectedDateMillis?.let { dateFormatter.format(Date(it)) } ?: "",
                     onValueChange = {},
-                    label = { Text("Date") },
+                    label = { Text("Ngày") },
                     readOnly = true,
                     modifier = Modifier.fillMaxWidth(),
                     trailingIcon = { 
                         TextButton(onClick = { showDatePicker = true }) {
-                            Text("CHANGE")
+                            Text("ĐỔI NGÀY")
                         }
                     }
                 )
@@ -165,12 +166,12 @@ fun AddReminderDialog(
                         onDismissRequest = { showDatePicker = false },
                         confirmButton = {
                             TextButton(onClick = { showDatePicker = false }) {
-                                Text("OK")
+                                Text("XONG")
                             }
                         },
                         dismissButton = {
                             TextButton(onClick = { showDatePicker = false }) {
-                                Text("CANCEL")
+                                Text("HUỶ")
                             }
                         }
                     ) {
@@ -184,12 +185,12 @@ fun AddReminderDialog(
                 OutlinedTextField(
                     value = timeFormatter.format(calendar.time),
                     onValueChange = {},
-                    label = { Text("Time") },
+                    label = { Text("Giờ") },
                     readOnly = true,
                     modifier = Modifier.fillMaxWidth(),
                     trailingIcon = { 
                         TextButton(onClick = { showTimePicker = true }) {
-                            Text("CHANGE")
+                            Text("ĐỔI GIỜ")
                         }
                     }
                 )
@@ -205,7 +206,7 @@ fun AddReminderDialog(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "Recurring Reminder",
+                        text = "Lặp lại nhắc nhở",
                         style = MaterialTheme.typography.bodyLarge
                     )
                     
@@ -225,7 +226,7 @@ fun AddReminderDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("CANCEL")
+                        Text("HUỶ")
                     }
                     
                     Spacer(modifier = Modifier.width(8.dp))
@@ -254,7 +255,7 @@ fun AddReminderDialog(
                         },
                         enabled = title.isNotEmpty() && petId != null
                     ) {
-                        Text("SAVE")
+                        Text("LƯU")
                     }
                 }
             }

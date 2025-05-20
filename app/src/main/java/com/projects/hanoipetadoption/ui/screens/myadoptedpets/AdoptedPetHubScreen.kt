@@ -74,7 +74,6 @@ fun AdoptedPetHubScreen(
         viewModel.loadPetDetails(petId)
     }
 
-    // Observe pet details changes
     val pet = viewModel.petDetails.collectAsState()
 
     Scaffold(
@@ -84,7 +83,6 @@ fun AdoptedPetHubScreen(
                     Text(
                         text = pet.value?.name ?: "",
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
                     )
                 },
                 navigationIcon = {

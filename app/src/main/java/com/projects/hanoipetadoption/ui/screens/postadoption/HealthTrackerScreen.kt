@@ -71,7 +71,7 @@ fun HealthTrackerScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Health Tracker") }
+                title = { Text("Theo dõi sức khoẻ") }
             )
         },
         floatingActionButton = {
@@ -79,7 +79,7 @@ fun HealthTrackerScreen(
                 onClick = { onAddRecordClick(petId) },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Health Record")
+                Icon(Icons.Default.Add, contentDescription = "Thêm ghi chú sức khoẻ")
             }
         }
     ) { paddingValues ->
@@ -104,13 +104,13 @@ fun HealthTrackerScreen(
                             verticalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = "No health records found",
+                                text = "Chưa có ghi chú sức khoẻ nào, bạn thêm mới nhé!",
                                 style = MaterialTheme.typography.bodyLarge,
                                 textAlign = TextAlign.Center
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(onClick = { onAddRecordClick(petId) }) {
-                                Text("Add First Record")
+                                Text("Thêm ghi chú đầu tiên")
                             }
                         }
                     } else {
@@ -134,14 +134,14 @@ fun HealthTrackerScreen(
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = "Error: ${state.message}",
+                            text = "Có lỗi rồi: ${state.message}",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.error,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(onClick = { viewModel.loadHealthRecords(petId) }) {
-                            Text("Retry")
+                            Text("Thử lại")
                         }
                     }
                 }
@@ -213,7 +213,7 @@ fun HealthRecordItem(record: HealthRecord) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Weight: ",
+                        text = "Cân nặng: ",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -238,7 +238,7 @@ fun HealthRecordItem(record: HealthRecord) {
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     Text(
-                        text = "Next follow-up: $formattedReminderDate",
+                        text = "Lịch nhắc tiếp theo: $formattedReminderDate",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )

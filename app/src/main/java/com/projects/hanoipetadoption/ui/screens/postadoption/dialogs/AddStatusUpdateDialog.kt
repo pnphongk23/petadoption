@@ -89,7 +89,7 @@ fun AddStatusUpdateDialog(
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
-                    text = "Add Status Update",
+                    text = "Thêm cập nhật tình trạng mới",
                     style = MaterialTheme.typography.headlineSmall
                 )
                 
@@ -99,7 +99,7 @@ fun AddStatusUpdateDialog(
                 OutlinedTextField(
                     value = content,
                     onValueChange = { content = it },
-                    label = { Text("How is your pet doing?") },
+                    label = { Text("Bé nhà bạn dạo này thế nào rồi?") },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 3
                 )
@@ -117,7 +117,7 @@ fun AddStatusUpdateDialog(
                     )
                     
                     Text(
-                        text = "This is a special milestone",
+                        text = "Đây là một cột mốc đặc biệt",
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -128,7 +128,7 @@ fun AddStatusUpdateDialog(
                     OutlinedTextField(
                         value = milestone,
                         onValueChange = { milestone = it },
-                        label = { Text("Milestone (e.g. First Bath, One Year Adoption Anniversary)") },
+                        label = { Text("Cột mốc (VD: Tắm lần đầu, Kỷ niệm 1 năm nhận nuôi)") },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -137,7 +137,7 @@ fun AddStatusUpdateDialog(
                 
                 // Image picker section
                 Text(
-                    text = "Add Photos",
+                    text = "Thêm ảnh",
                     style = MaterialTheme.typography.titleMedium
                 )
                 
@@ -168,7 +168,7 @@ fun AddStatusUpdateDialog(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "Remove Image",
+                                    contentDescription = "Xoá ảnh này",
                                     tint = MaterialTheme.colorScheme.onSurface
                                 )
                             }
@@ -191,7 +191,7 @@ fun AddStatusUpdateDialog(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Add Image",
+                                    contentDescription = "Thêm ảnh mới",
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
@@ -207,7 +207,7 @@ fun AddStatusUpdateDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("CANCEL")
+                        Text("HUỶ")
                     }
                     
                     Spacer(modifier = Modifier.width(8.dp))
@@ -248,7 +248,7 @@ fun AddStatusUpdateDialog(
                         },
                         enabled = content.isNotEmpty()
                     ) {
-                        Text("POST")
+                        Text("ĐĂNG")
                     }
                 }
             }

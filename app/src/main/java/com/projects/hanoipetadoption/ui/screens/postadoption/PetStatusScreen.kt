@@ -73,7 +73,7 @@ fun PetStatusScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Pet Status Updates") }
+                title = { Text("Cập nhật tình trạng bé") }
             )
         },
         floatingActionButton = {
@@ -81,7 +81,7 @@ fun PetStatusScreen(
                 onClick = { onAddStatusClick(petId) },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Status Update")
+                Icon(Icons.Default.Add, contentDescription = "Thêm cập nhật mới")
             }
         }
     ) { paddingValues ->
@@ -224,7 +224,7 @@ fun StatusUpdateItem(
                         if (images.size > 3) {
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = "+${images.size - 3} more",
+                                text = "+${images.size - 3} ảnh nữa",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.align(Alignment.End)
@@ -255,7 +255,7 @@ fun StatusUpdateItem(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Milestone: $milestone",
+                        text = "Cột mốc: $milestone",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.primary
@@ -298,7 +298,7 @@ fun EmptyStatusMessage(
         Spacer(modifier = Modifier.height(16.dp))
         
         Text(
-            text = "No status updates yet",
+            text = "Chưa có cập nhật nào đâu nè~",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Medium
         )
@@ -306,7 +306,7 @@ fun EmptyStatusMessage(
         Spacer(modifier = Modifier.height(8.dp))
         
         Text(
-            text = "Share how your pet is doing by adding your first status update",
+            text = "Chia sẻ tình trạng của bé bằng cách thêm cập nhật đầu tiên nhé!",
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -315,7 +315,7 @@ fun EmptyStatusMessage(
         Spacer(modifier = Modifier.height(24.dp))
         
         Button(onClick = onAddFirstUpdate) {
-            Text("Add First Update")
+            Text("Thêm cập nhật đầu tiên")
         }
     }
 }

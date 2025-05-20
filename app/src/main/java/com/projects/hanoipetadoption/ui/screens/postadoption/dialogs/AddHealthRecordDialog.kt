@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.projects.hanoipetadoption.data.model.postadoption.HealthRecordCreate
 import com.projects.hanoipetadoption.data.model.postadoption.RecordType
+import com.projects.hanoipetadoption.data.model.postadoption.displayName
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -70,7 +71,7 @@ fun AddHealthRecordDialog(
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
-                    text = "Add Health Record",
+                    text = "Thêm ghi chú sức khoẻ",
                     style = MaterialTheme.typography.headlineSmall
                 )
                 
@@ -82,10 +83,10 @@ fun AddHealthRecordDialog(
                     onExpandedChange = { expanded = it }
                 ) {
                     OutlinedTextField(
-                        value = selectedRecordType.toString(),
+                        value = selectedRecordType.displayName(),
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Record Type") },
+                        label = { Text("Loại ghi chú") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -98,7 +99,7 @@ fun AddHealthRecordDialog(
                     ) {
                         RecordType.values().forEach { recordType ->
                             DropdownMenuItem(
-                                text = { Text(recordType.toString()) },
+                                text = { Text(recordType.displayName()) },
                                 onClick = {
                                     selectedRecordType = recordType
                                     expanded = false
@@ -114,12 +115,12 @@ fun AddHealthRecordDialog(
                 OutlinedTextField(
                     value = dateFormatter.format(selectedDate),
                     onValueChange = {},
-                    label = { Text("Date") },
+                    label = { Text("Ngày") },
                     readOnly = true,
                     modifier = Modifier.fillMaxWidth(),
                     trailingIcon = { 
                         TextButton(onClick = { showDatePicker = true }) {
-                            Text("CHANGE")
+                            Text("ĐỔI NGÀY")
                         }
                     }
                 )
@@ -129,12 +130,12 @@ fun AddHealthRecordDialog(
                         onDismissRequest = { showDatePicker = false },
                         confirmButton = {
                             TextButton(onClick = { showDatePicker = false }) {
-                                Text("OK")
+                                Text("XONG")
                             }
                         },
                         dismissButton = {
                             TextButton(onClick = { showDatePicker = false }) {
-                                Text("CANCEL")
+                                Text("HUỶ")
                             }
                         }
                     ) {
@@ -149,7 +150,7 @@ fun AddHealthRecordDialog(
                     OutlinedTextField(
                         value = weight,
                         onValueChange = { weight = it },
-                        label = { Text("Weight (kg)") },
+                        label = { Text("Cân nặng (kg)") },
                         modifier = Modifier.fillMaxWidth()
                     )
                     
@@ -160,7 +161,7 @@ fun AddHealthRecordDialog(
                 OutlinedTextField(
                     value = notes,
                     onValueChange = { notes = it },
-                    label = { Text("Notes") },
+                    label = { Text("Ghi chú") },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 3
                 )
@@ -173,7 +174,7 @@ fun AddHealthRecordDialog(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(onClick = onDismiss) {
-                        Text("CANCEL")
+                        Text("HUỶ")
                     }
                     
                     Spacer(modifier = Modifier.width(8.dp))
@@ -199,7 +200,7 @@ fun AddHealthRecordDialog(
                             else -> true
                         }
                     ) {
-                        Text("SAVE")
+                        Text("LƯU")
                     }
                 }
             }
