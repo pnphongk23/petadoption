@@ -7,8 +7,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material3.Card
@@ -26,10 +31,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.projects.hanoipetadoption.R
 import com.projects.hanoipetadoption.ui.model.Pet
 import com.projects.hanoipetadoption.ui.viewmodel.myadoptedpets.AdoptedPetsState
@@ -126,6 +139,7 @@ fun AdoptedPetsList(
 /**
  * Individual pet item in the list
  */
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun AdoptedPetItem(
     pet: Pet,
@@ -137,20 +151,37 @@ fun AdoptedPetItem(
             .padding(vertical = 8.dp)
             .clickable(onClick = onClick)
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = pet.name,
-                style = MaterialTheme.typography.titleMedium
-            )
-            Text(
-                text = pet.breed,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            // Additional pet details can be added here
+            GlideImage(
+                model = pet.imageRes,
+                contentDescription = stringResource(R.string.pet_adoption_slogan, pet.name),
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(CircleShape)
+            ) {
+
+                it.apply(RequestOptions().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC))
+                    .transition(DrawableTransitionOptions.withCrossFade())
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column {
+                Text(
+                    text = pet.name,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = pet.breed,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 }

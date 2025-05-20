@@ -23,6 +23,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -50,8 +52,44 @@ import coil.compose.AsyncImage
 import com.projects.hanoipetadoption.data.model.postadoption.PetStatusUpdate
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 import java.util.UUID
+import android.os.Environment
+import androidx.core.content.FileProvider
+import android.content.Context
+
+private fun createImageFile(context: Context): Pair<File, Uri>? {
+    return try {
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val imageFileName = "JPEG_${timeStamp}_"
+        val storageDir: File? = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        
+        if (storageDir == null) {
+            // Handle error: External storage might not be available
+            return null
+        }
+
+        val imageFile = File.createTempFile(
+            imageFileName, /* prefix */
+            ".jpg",        /* suffix */
+            storageDir     /* directory */
+        )
+
+        val photoURI: Uri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.provider", // Ensure this matches your FileProvider authority
+            imageFile
+        )
+        Pair(imageFile, photoURI)
+    } catch (ex: IOException) {
+        ex.printStackTrace()
+        // Handle error: Could not create file
+        null
+    }
+}
 
 /**
  * Dialog for adding a new pet status update
@@ -68,13 +106,31 @@ fun AddStatusUpdateDialog(
     var isMilestone by remember { mutableStateOf(false) }
     val selectedImages = remember { mutableStateListOf<Uri>() }
     val context = LocalContext.current
+    var tempCameraImageUri by remember { mutableStateOf<Uri?>(null) } // To store URI for camera
+
+    // Launcher for taking a picture
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            tempCameraImageUri?.let { uri ->
+                if (selectedImages.size < 5) {
+                    selectedImages.add(uri)
+                }
+                // tempCameraImageUri = null // Optional: reset if you want to ensure it's fresh each time
+            }
+        }
+    }
     
-    // Photo picker launcher
+    // Photo picker launcher for gallery
     val photoPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
     ) { uris ->
         if (uris.isNotEmpty()) {
-            selectedImages.addAll(uris.take(5 - selectedImages.size))
+            val remainingSlots = 5 - selectedImages.size
+            if (remainingSlots > 0) {
+                selectedImages.addAll(uris.take(remainingSlots))
+            }
         }
     }
 
@@ -137,63 +193,86 @@ fun AddStatusUpdateDialog(
                 
                 // Image picker section
                 Text(
-                    text = "Thêm ảnh",
+                    text = "Thêm ảnh (tối đa 5 ảnh)",
                     style = MaterialTheme.typography.titleMedium
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
-                
-                // Selected images preview
-                LazyRow(
+
+                // Buttons to add images from Gallery or Camera
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(selectedImages) { uri ->
-                        Box(
-                            modifier = Modifier
-                                .size(80.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                        ) {
-                            AsyncImage(
-                                model = uri,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.size(80.dp)
-                            )
-                            
-                            IconButton(
-                                onClick = { selectedImages.remove(uri) },
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .size(24.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = "Xoá ảnh này",
-                                    tint = MaterialTheme.colorScheme.onSurface
-                                )
+                    // Button to pick from gallery
+                    Button(
+                        onClick = {
+                            if (selectedImages.size < 5) {
+                                photoPicker.launch("image/*")
                             }
-                        }
+                        },
+                        enabled = selectedImages.size < 5,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(Icons.Filled.PhotoLibrary, contentDescription = "Chọn từ thư viện")
+                        Spacer(Modifier.width(4.dp))
+                        Text("Thư viện")
                     }
-                    
-                    // Add photo button (only if less than 5 photos are selected)
-                    if (selectedImages.size < 5) {
-                        item {
+
+                    // Button to take a picture with camera
+                    Button(
+                        onClick = {
+                            if (selectedImages.size < 5) {
+                                val imageFileAndUri = createImageFile(context)
+                                if (imageFileAndUri != null) {
+                                    tempCameraImageUri = imageFileAndUri.second
+                                    takePictureLauncher.launch(imageFileAndUri.second)
+                                } else {
+                                    // Handle error: Toast or log, "Could not prepare image file."
+                                }
+                            }
+                        },
+                        enabled = selectedImages.size < 5,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(Icons.Filled.PhotoCamera, contentDescription = "Chụp ảnh mới")
+                        Spacer(Modifier.width(4.dp))
+                        Text("Máy ảnh")
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // Selected images preview
+                if (selectedImages.isNotEmpty()){
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(selectedImages) { uri ->
                             Box(
                                 modifier = Modifier
                                     .size(80.dp)
-                                    .border(
-                                        width = 1.dp,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                                        shape = RoundedCornerShape(8.dp)
-                                    )
-                                    .clickable { photoPicker.launch("image/*") },
-                                contentAlignment = Alignment.Center
+                                    .clip(RoundedCornerShape(8.dp))
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = "Thêm ảnh mới",
-                                    tint = MaterialTheme.colorScheme.primary
+                                AsyncImage(
+                                    model = uri,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.size(80.dp)
                                 )
+                                
+                                IconButton(
+                                    onClick = { selectedImages.remove(uri) },
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .size(24.dp) // Adjusted size for better touch target
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Xoá ảnh này",
+                                        tint = MaterialTheme.colorScheme.onSecondaryContainer // Ensure good contrast
+                                    )
+                                }
                             }
                         }
                     }
